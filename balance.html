@@ -3,26 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPay Rewards - Spin & Win</title>
+    <title>OPay Finance - OWealth</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --opay-green: #00d28d;
-            --reward-yellow: #ffcc00;
+            --owealth-blue: #4b44e0;
             --text-dark: #333;
             --text-light: #888;
-            --bg-gray: #f4f7f6;
+            --bg-gray: #f8f9fb;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
-        body {
-            background-color: #121212;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+        body { background-color: #121212; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
 
         .phone-container {
             width: 375px;
@@ -37,96 +31,37 @@
         }
 
         /* HEADER */
-        .rewards-header {
-            background: white;
-            padding: 30px 20px 15px;
-            text-align: center;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-            z-index: 10;
-        }
+        header { padding: 40px 20px 10px; background: white; text-align: center; }
+        .tab-switcher { display: flex; background: #eee; border-radius: 20px; padding: 4px; margin-top: 15px; }
+        .tab { flex: 1; padding: 8px; border-radius: 18px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+        .tab.active { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        .balance-amt { font-size: 2rem; font-weight: 800; color: var(--text-dark); }
-
-        /* --- WHEEL OF FORTUNE SECTION --- */
-        .wheel-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
-            background: white;
-            margin: 15px;
-            border-radius: 20px;
-            position: relative;
-        }
-
-        .wheel-container {
-            width: 180px;
-            height: 180px;
-            border: 5px solid #eee;
-            border-radius: 50%;
-            position: relative;
-            overflow: hidden;
-            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
-        }
-
-        .wheel-pointer {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 20px solid var(--opay-green);
-            z-index: 5;
-        }
-
-        .segment {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            transform-origin: 100% 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.6rem;
-            font-weight: bold;
+        /* OWEALTH CARD */
+        .owealth-card {
+            background: var(--owealth-blue);
             color: white;
+            margin: 20px 15px;
+            padding: 25px;
+            border-radius: 25px;
+            background-image: linear-gradient(135deg, #4b44e0 0%, #7d77f5 100%);
         }
 
-        /* Color the segments */
-        .s1 { background: #00d28d; transform: rotate(0deg) skewY(-45deg); }
-        .s2 { background: #4b44e0; transform: rotate(45deg) skewY(-45deg); }
-        .s3 { background: #ffcc00; transform: rotate(90deg) skewY(-45deg); }
-        .s4 { background: #e74c3c; transform: rotate(135deg) skewY(-45deg); }
-        .s5 { background: #00d28d; transform: rotate(180deg) skewY(-45deg); }
-        .s6 { background: #4b44e0; transform: rotate(225deg) skewY(-45deg); }
-        .s7 { background: #ffcc00; transform: rotate(270deg) skewY(-45deg); }
-        .s8 { background: #e74c3c; transform: rotate(315deg) skewY(-45deg); }
+        .growth-chip { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 12px; font-size: 0.65rem; }
 
-        .spin-btn {
-            margin-top: 15px;
-            background: var(--dark);
-            background: #333;
-            color: white;
-            padding: 10px 30px;
-            border-radius: 20px;
-            border: none;
-            font-weight: 800;
-            cursor: pointer;
-        }
+        /* STATS GRID */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 15px; }
+        .stat-box { background: white; padding: 15px; border-radius: 15px; text-align: center; }
+        .stat-label { font-size: 0.65rem; color: var(--text-light); display: block; margin-bottom: 5px; }
+        .stat-value { font-weight: 800; color: var(--text-dark); }
 
-        /* LIST CONTENT */
-        .scroll-area { flex: 1; overflow-y: auto; padding: 0 15px 80px; }
-        .section-label { font-weight: 800; color: var(--text-dark); margin: 15px 0 10px; font-size: 0.9rem; }
+        /* CALCULATOR SECTION */
+        .calc-section { background: white; margin: 20px 15px; padding: 20px; border-radius: 20px; }
+        .input-group { margin-top: 15px; }
+        input[type="range"] { width: 100%; accent-color: var(--opay-green); }
 
-        .reward-card {
-            background: white; padding: 15px; border-radius: 15px;
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
-        }
-
-        .go-btn { background: var(--opay-green); color: white; padding: 6px 15px; border-radius: 15px; border: none; font-size: 0.7rem; font-weight: 600; }
+        /* LIST */
+        .main-scroll { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+        .list-item { display: flex; justify-content: space-between; padding: 15px 20px; background: white; border-bottom: 1px solid #f2f2f2; }
 
         nav { display: flex; justify-content: space-around; padding: 12px 0; background: white; border-top: 1px solid #eee; position: absolute; bottom: 0; width: 100%; }
         .nav-item { text-align: center; font-size: 0.6rem; color: var(--text-light); }
@@ -136,75 +71,80 @@
 <body>
 
 <div class="phone-container">
-    <div class="rewards-header">
-        <p style="font-size: 0.7rem; color: var(--text-light);">Current Balance</p>
-        <div class="balance-amt">🪙 <span id="coinBalance">1,250</span></div>
-    </div>
+    <header>
+        <b style="font-size: 1.1rem;">Finance</b>
+        <div class="tab-switcher">
+            <div class="tab active">OWealth</div>
+            <div class="tab">Fixed</div>
+            <div class="tab">Targets</div>
+        </div>
+    </header>
 
-    <div class="scroll-area">
-        <div class="wheel-section">
-            <div class="wheel-pointer"></div>
-            <div class="wheel-container" id="wheel">
-                <div class="segment s1"></div>
-                <div class="segment s2"></div>
-                <div class="segment s3"></div>
-                <div class="segment s4"></div>
-                <div class="segment s5"></div>
-                <div class="segment s6"></div>
-                <div class="segment s7"></div>
-                <div class="segment s8"></div>
+    <div class="main-scroll">
+        <div class="owealth-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <small style="opacity: 0.8; font-size: 0.7rem;">OWealth Balance</small>
+                    <h2 style="font-size: 2rem; margin: 5px 0;">₦ 540,200</h2>
+                </div>
+                <span class="growth-chip">15% P.A.</span>
             </div>
-            <button class="spin-btn" onclick="spinWheel()">SPIN & WIN</button>
-            <p style="font-size: 0.6rem; margin-top: 10px; color: var(--text-light);">1 Free Spin Daily</p>
+            <p style="font-size: 0.7rem; margin-top: 10px;">Daily Interest: +₦ 221.45</p>
         </div>
 
-        <h3 class="section-label">More Missions</h3>
-        <div class="reward-card">
-            <div><b>Daily Check-in</b><br><small>Earn coins every day</small></div>
-            <button class="go-btn">Check</button>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <span class="stat-label">Total Profit</span>
+                <span class="stat-value" style="color: var(--opay-green);">+₦ 12,400</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Yesterday's Pay</span>
+                <span class="stat-value">₦ 218.10</span>
+            </div>
         </div>
-        <div class="reward-card">
-            <div><b>Pay Bills</b><br><small>Get up to 50 coins</small></div>
-            <button class="go-btn">Pay</button>
+
+        <div class="calc-section">
+            <b style="font-size: 0.85rem;">Interest Calculator</b>
+            <div class="input-group">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <small>Investment Amount</small>
+                    <b id="calcAmt">₦ 100,000</b>
+                </div>
+                <input type="range" id="investRange" min="10000" max="1000000" step="10000" value="100000" oninput="calculate()">
+            </div>
+            <div style="margin-top: 20px; background: var(--bg-gray); padding: 10px; border-radius: 10px; display: flex; justify-content: space-between;">
+                <small>Annual Return:</small>
+                <b style="color: var(--owealth-blue);" id="annualReturn">₦ 15,000</b>
+            </div>
+        </div>
+
+        <div class="list-item">
+            <div><b style="font-size: 0.8rem;">OWealth FAQ</b><br><small>How is interest calculated?</small></div>
+            <span>❯</span>
+        </div>
+        <div class="list-item">
+            <div><b style="font-size: 0.8rem;">Auto-Invest</b><br><small>Move idle funds automatically</small></div>
+            <span style="color: var(--opay-green);">ON</span>
         </div>
     </div>
 
     <nav>
         <div class="nav-item"><span style="display:block; font-size:1.2rem;">🏧</span>Pay</div>
-        <div class="nav-item active"><span style="display:block; font-size:1.2rem;">🎁</span>Rewards</div>
-        <div class="nav-item"><span style="display:block; font-size:1.2rem;">👛</span>Balance</div>
+        <div class="nav-item"><span style="display:block; font-size:1.2rem;">🎁</span>Rewards</div>
+        <div class="nav-item active"><span style="display:block; font-size:1.2rem;">👛</span>Balance</div>
         <div class="nav-item"><span style="display:block; font-size:1.2rem;">💬</span>Support</div>
         <div class="nav-item"><span style="display:block; font-size:1.2rem;">⚙️</span>Settings</div>
     </nav>
 </div>
 
 <script>
-    let currentRotation = 0;
-    let isSpinning = false;
-
-    function spinWheel() {
-        if (isSpinning) return;
-        isSpinning = true;
-
-        const wheel = document.getElementById('wheel');
-        const extraDegrees = Math.floor(Math.random() * 360) + 1800; // At least 5 full spins
-        currentRotation += extraDegrees;
-
-        wheel.style.transform = `rotate(${currentRotation}deg)`;
-
-        setTimeout(() => {
-            isSpinning = false;
-            // Add random prize
-            const winAmount = [10, 20, 50, 5, 100][Math.floor(Math.random() * 5)];
-            updateCoins(winAmount);
-            alert(`Congratulations! You won ${winAmount} OPay Coins!`);
-        }, 4000);
-    }
-
-    function updateCoins(amt) {
-        const balanceEl = document.getElementById('coinBalance');
-        let current = parseInt(balanceEl.innerText.replace(',', ''));
-        balanceEl.innerText = (current + amt).toLocaleString();
+    function calculate() {
+        const amount = document.getElementById('investRange').value;
+        const annualRate = 0.15; // 15% interest
+        const profit = amount * annualRate;
+        
+        document.getElementById('calcAmt').innerText = `₦ ${parseInt(amount).toLocaleString()}`;
+        document.getElementById('annualReturn').innerText = `₦ ${profit.toLocaleString()}`;
     }
 </script>
 
