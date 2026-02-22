@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPay Rewards - Spin & Win</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --opay-green: #00d28d;
+            --reward-yellow: #ffcc00;
+            --text-dark: #333;
+            --text-light: #888;
+            --bg-gray: #f4f7f6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: #121212;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 750px;
+            background: var(--bg-gray);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .rewards-header {
+            background: white;
+            padding: 30px 20px 15px;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            z-index: 10;
+        }
+
+        .balance-amt { font-size: 2rem; font-weight: 800; color: var(--text-dark); }
+
+        /* --- WHEEL OF FORTUNE SECTION --- */
+        .wheel-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            background: white;
+            margin: 15px;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .wheel-container {
+            width: 180px;
+            height: 180px;
+            border: 5px solid #eee;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 20px solid var(--opay-green);
+            z-index: 5;
+        }
+
+        .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Color the segments */
+        .s1 { background: #00d28d; transform: rotate(0deg) skewY(-45deg); }
+        .s2 { background: #4b44e0; transform: rotate(45deg) skewY(-45deg); }
+        .s3 { background: #ffcc00; transform: rotate(90deg) skewY(-45deg); }
+        .s4 { background: #e74c3c; transform: rotate(135deg) skewY(-45deg); }
+        .s5 { background: #00d28d; transform: rotate(180deg) skewY(-45deg); }
+        .s6 { background: #4b44e0; transform: rotate(225deg) skewY(-45deg); }
+        .s7 { background: #ffcc00; transform: rotate(270deg) skewY(-45deg); }
+        .s8 { background: #e74c3c; transform: rotate(315deg) skewY(-45deg); }
+
+        .spin-btn {
+            margin-top: 15px;
+            background: var(--dark);
+            background: #333;
+            color: white;
+            padding: 10px 30px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        /* LIST CONTENT */
+        .scroll-area { flex: 1; overflow-y: auto; padding: 0 15px 80px; }
+        .section-label { font-weight: 800; color: var(--text-dark); margin: 15px 0 10px; font-size: 0.9rem; }
+
+        .reward-card {
+            background: white; padding: 15px; border-radius: 15px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+        }
+
+        .go-btn { background: var(--opay-green); color: white; padding: 6px 15px; border-radius: 15px; border: none; font-size: 0.7rem; font-weight: 600; }
+
+        nav { display: flex; justify-content: space-around; padding: 12px 0; background: white; border-top: 1px solid #eee; position: absolute; bottom: 0; width: 100%; }
+        .nav-item { text-align: center; font-size: 0.6rem; color: var(--text-light); }
+        .nav-item.active { color: var(--opay-green); }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="rewards-header">
+        <p style="font-size: 0.7rem; color: var(--text-light);">Current Balance</p>
+        <div class="balance-amt">🪙 <span id="coinBalance">1,250</span></div>
+    </div>
+
+    <div class="scroll-area">
+        <div class="wheel-section">
+            <div class="wheel-pointer"></div>
+            <div class="wheel-container" id="wheel">
+                <div class="segment s1"></div>
+                <div class="segment s2"></div>
+                <div class="segment s3"></div>
+                <div class="segment s4"></div>
+                <div class="segment s5"></div>
+                <div class="segment s6"></div>
+                <div class="segment s7"></div>
+                <div class="segment s8"></div>
+            </div>
+            <button class="spin-btn" onclick="spinWheel()">SPIN & WIN</button>
+            <p style="font-size: 0.6rem; margin-top: 10px; color: var(--text-light);">1 Free Spin Daily</p>
+        </div>
+
+        <h3 class="section-label">More Missions</h3>
+        <div class="reward-card">
+            <div><b>Daily Check-in</b><br><small>Earn coins every day</small></div>
+            <button class="go-btn">Check</button>
+        </div>
+        <div class="reward-card">
+            <div><b>Pay Bills</b><br><small>Get up to 50 coins</small></div>
+            <button class="go-btn">Pay</button>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-item"><span style="display:block; font-size:1.2rem;">🏧</span>Pay</div>
+        <div class="nav-item active"><span style="display:block; font-size:1.2rem;">🎁</span>Rewards</div>
+        <div class="nav-item"><span style="display:block; font-size:1.2rem;">👛</span>Balance</div>
+        <div class="nav-item"><span style="display:block; font-size:1.2rem;">💬</span>Support</div>
+        <div class="nav-item"><span style="display:block; font-size:1.2rem;">⚙️</span>Settings</div>
+    </nav>
+</div>
+
+<script>
+    let currentRotation = 0;
+    let isSpinning = false;
+
+    function spinWheel() {
+        if (isSpinning) return;
+        isSpinning = true;
+
+        const wheel = document.getElementById('wheel');
+        const extraDegrees = Math.floor(Math.random() * 360) + 1800; // At least 5 full spins
+        currentRotation += extraDegrees;
+
+        wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+            isSpinning = false;
+            // Add random prize
+            const winAmount = [10, 20, 50, 5, 100][Math.floor(Math.random() * 5)];
+            updateCoins(winAmount);
+            alert(`Congratulations! You won ${winAmount} OPay Coins!`);
+        }, 4000);
+    }
+
+    function updateCoins(amt) {
+        const balanceEl = document.getElementById('coinBalance');
+        let current = parseInt(balanceEl.innerText.replace(',', ''));
+        balanceEl.innerText = (current + amt).toLocaleString();
+    }
+</script>
+
+</body>
+</html>
