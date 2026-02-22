@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPay Dashboard - ORide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --opay-green: #00d28d;
+            --opay-gradient: linear-gradient(135deg, #00d28d 0%, #4b44e0 100%);
+            --text-dark: #333;
+            --text-light: #888;
+            --danger: #ff4d4d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: #121212;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .phone-container {
+            width: 375px;
+            height: 750px;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER & CARD REMAIN SAME */
+        header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .menu-icon { width: 22px; height: 16px; border-top: 2px solid var(--opay-green); border-bottom: 2px solid var(--opay-green); position: relative; }
+        .menu-icon::after { content: ''; position: absolute; top: 5px; width: 100%; height: 2px; background: var(--opay-green); }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; background: #eee; overflow: hidden; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .balance-card {
+            margin: 0 15px;
+            padding: 22px;
+            background: var(--opay-gradient);
+            border-radius: 20px;
+            color: white;
+            position: relative;
+        }
+
+        .username { font-size: 1.4rem; font-weight: 800; margin-bottom: 15px; }
+        .total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 1.6rem; font-weight: 800; }
+        
+        .add-btn {
+            width: 42px; height: 42px; background: var(--opay-green); color: white; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; font-size: 1.8rem;
+            border: 4px solid white; position: absolute; bottom: -21px; left: 50%; transform: translateX(-50%);
+        }
+
+        .info-banner {
+            margin: 30px 15px 10px; padding: 12px; background: #fff; border-radius: 12px;
+            display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-size: 0.7rem; color: var(--text-light);
+        }
+
+        /* SCROLLABLE SERVICES */
+        .main-scroll { flex: 1; overflow-y: auto; padding: 0 15px 80px; }
+        .section-title { font-weight: 800; margin: 20px 0 10px; font-size: 1.1rem; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .service-item {
+            background: white; padding: 12px; border-radius: 12px;
+            display: flex; align-items: center; gap: 10px; border: 1px solid #f2f2f2;
+            position: relative;
+        }
+
+        .service-item.highlight { background: var(--opay-green); color: white; border: none; }
+        .service-info b { font-size: 0.8rem; display: block; }
+        .service-info small { font-size: 0.6rem; opacity: 0.7; }
+        
+        /* NEW ORIDE & OFOOD SPECIFICS */
+        .ride-icon { color: #e74c3c; font-size: 1.3rem; }
+        .food-icon { color: #f39c12; font-size: 1.3rem; }
+        
+        .badge-red {
+            background: var(--danger); color: white; font-size: 0.55rem;
+            padding: 4px 8px; border-radius: 10px; font-weight: bold;
+            position: absolute; right: 10px;
+        }
+
+        /* FOOTER */
+        nav { display: flex; justify-content: space-around; padding: 12px 0; background: white; border-top: 1px solid #eee; position: absolute; bottom: 0; width: 100%; }
+        .nav-item { text-align: center; font-size: 0.6rem; color: var(--text-light); }
+        .nav-item.active { color: var(--opay-green); }
+        .nav-icon { display: block; font-size: 1.2rem; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <header>
+        <div class="menu-icon"></div>
+        <div style="font-weight: 800; font-size: 1.1rem;">OPay</div>
+        <div class="user-avatar"><img src="https://i.pravatar.cc/100" alt="user"></div>
+    </header>
+
+    <div class="main-scroll">
+        <div class="balance-card">
+            <p style="font-size: 0.7rem; opacity: 0.8;">Good morning,</p>
+            <p class="username">George!</p>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; opacity: 0.9;">
+                <span>Balance</span><span>₦ 2600</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; opacity: 0.9;">
+                <span>Bonus</span><span>₦ 200</span>
+            </div>
+            <div class="total-row">
+                <span style="font-size: 0.8rem; font-weight: 400;">📁 Total balance</span>
+                <span>₦ 2800</span>
+            </div>
+            <div class="add-btn">+</div>
+        </div>
+
+        <div class="info-banner">
+            <span style="font-size: 1.2rem;">📨</span>
+            <p>Transfer money from any bank app to OPay balance!</p>
+        </div>
+
+        <h3 class="section-title">Pay</h3>
+        <div class="grid">
+            <div class="service-item">
+                <span style="color:var(--opay-green)">📱</span>
+                <div class="service-info"><b>Airtime</b><small>12 companies</small></div>
+            </div>
+            <div class="service-item">
+                <span style="color:var(--opay-green)">🌐</span>
+                <div class="service-info"><b>Mobile data</b><small>10 companies</small></div>
+            </div>
+            <div class="service-item">
+                <span style="color:var(--opay-green)">🎲</span>
+                <div class="service-info"><b>Betting</b><small>8 companies</small></div>
+            </div>
+            <div class="service-item highlight">
+                <span>📺</span>
+                <div class="service-info"><b>TV</b><small>18 companies</small></div>
+            </div>
+            <div class="service-item">
+                <span style="color:var(--opay-green)">⚡</span>
+                <div class="service-info"><b>Electricity</b><small>11 companies</small></div>
+            </div>
+            <div class="service-item">
+                <span class="food-icon">🍲</span>
+                <div class="service-info"><b>OFood</b></div>
+            </div>
+            <div class="service-item">
+                <span class="ride-icon">🏍️</span>
+                <div class="service-info"><b>ORide</b><small>Try now</small></div>
+            </div>
+            <div class="service-item" style="border:none; background:transparent; justify-content:flex-end;">
+                <span class="badge-red">Get coupons now!</span>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-item active"><span class="nav-icon">🏧</span>Pay</div>
+        <div class="nav-item"><span class="nav-icon">🔄</span>Transfer</div>
+        <div class="nav-item"><span class="nav-icon">👛</span>Balance</div>
+        <div class="nav-item"><span class="nav-icon">💬</span>Support</div>
+        <div class="nav-item"><span class="nav-icon">⚙️</span>Settings</div>
+    </nav>
+</div>
+
+</body>
+</html>
