@@ -2,39 +2,258 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPay Dashboard - ORide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>goAPPs | Universal Super App</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00d28d">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --opay-green: #00d28d;
             --opay-gradient: linear-gradient(135deg, #00d28d 0%, #4b44e0 100%);
+            --owealth-blue: #4b44e0;
+            --reward-yellow: #ffcc00;
             --text-dark: #333;
             --text-light: #888;
+            --bg-gray: #f8f9fb;
             --danger: #ff4d4d;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        /* Base Reset */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #121212; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
 
-        body {
-            background-color: #121212;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
+        /* Smartphone Container */
         .phone-container {
-            width: 375px;
-            height: 750px;
-            background: white;
-            border-radius: 40px;
-            overflow: hidden;
-            position: relative;
-            border: 8px solid #333;
-            display: flex;
-            flex-direction: column;
+            width: 375px; height: 750px; background: white; border-radius: 40px;
+            overflow: hidden; position: relative; border: 8px solid #333;
+            display: flex; flex-direction: column; box-shadow: 0 50px 100px rgba(0,0,0,0.5);
         }
+
+        /* Navigation Management */
+        .page { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding-bottom: 90px; background: var(--bg-gray); animation: fadeIn 0.3s ease; }
+        .page.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Full-Screen Overlays (Offline & 404) */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 1000; display: none;
+            flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px;
+        }
+
+        /* Dashboard UI */
+        header { padding: 45px 20px 15px; background: white; text-align: center; border-bottom: 1px solid #eee; }
+        .main-card { margin: 15px; padding: 22px; border-radius: 20px; color: white; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 15px; }
+        .service-item { background: white; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 10px; border: 1px solid #eee; cursor: pointer; }
+
+        /* Interactive Elements */
+        .wheel-container { width: 180px; height: 180px; border: 5px solid #eee; border-radius: 50%; position: relative; transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1); margin: 20px auto; overflow: hidden; }
+        .segment { position: absolute; width: 50%; height: 50%; transform-origin: 100% 100%; }
+        .credit-card { height: 180px; background: #1a1a1a; border-radius: 15px; transition: 0.6s; transform-style: preserve-3d; position: relative; margin: 20px; cursor: pointer; }
+        .credit-card.flipped { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; padding: 20px; border-radius: 15px; color: white; }
+        .card-back { background: #222; transform: rotateY(180deg); display: flex; align-items: center; justify-content: center; }
+
+        /* Fixed Navigation Footer */
+        nav { display: flex; justify-content: space-around; padding: 12px 0; background: white; border-top: 1px solid #eee; position: absolute; bottom: 0; width: 100%; z-index: 100; }
+        .nav-item { text-align: center; font-size: 0.65rem; color: var(--text-light); cursor: pointer; transition: 0.2s; }
+        .nav-item.active { color: var(--opay-green); font-weight: 800; }
+        .nav-icon { font-size: 1.3rem; display: block; margin-bottom: 2px; }
+
+        /* Buttons & Badges */
+        .btn-green { background: var(--opay-green); color: white; border: none; border-radius: 12px; padding: 12px 25px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-green:active { transform: scale(0.95); opacity: 0.9; }
+        #install-banner {
+            position: absolute; bottom: 85px; left: 15px; right: 15px; background: #1a1a1a; color: white; 
+            padding: 12px; border-radius: 15px; display: none; justify-content: space-between; align-items: center; z-index: 200;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    
+    <div id="page-404" class="overlay">
+        <h1 style="font-size: 5rem;">🔍</h1>
+        <h2 style="margin-bottom: 15px;">Page Not Found</h2>
+        <p style="margin-bottom: 30px;">This feature is currently under development or moved elsewhere.</p>
+        <button class="btn-green" onclick="navTo('home')">Return Home</button>
+    </div>
+
+    <div id="page-offline" class="overlay">
+        <h1 style="font-size: 5rem;">📡</h1>
+        <h2 style="margin-bottom: 15px;">No Connection</h2>
+        <p style="margin-bottom: 30px;">goAPPs requires an active internet connection to process transactions.</p>
+        <button class="btn-green" onclick="window.location.reload()">Try Reconnecting</button>
+    </div>
+
+    <div id="install-banner">
+        <div><b style="font-size: 0.8rem; color: var(--opay-green);">Install goAPPs</b><br><span style="font-size: 0.65rem; opacity: 0.7;">Get faster access on home screen</span></div>
+        <button id="install-btn" class="btn-green" style="padding: 8px 15px; font-size: 0.7rem;">Install</button>
+    </div>
+
+    <div id="home" class="page active">
+        <header style="display: flex; justify-content: space-between; align-items: center; text-align: left;">
+            <div><small>Balance</small><h2 id="homeBal">₦ 2,800.00</h2></div>
+            <div style="width: 35px; height: 35px; background: #eee; border-radius: 50%; border: 2px solid var(--opay-green);"></div>
+        </header>
+        <div class="main-card" style="background: var(--opay-gradient);">
+            <b>George Obinna</b>
+            <p style="font-size: 0.7rem; opacity: 0.8; margin-top: 5px;">Acc: 8123456789 (Tier 2)</p>
+            <div style="margin-top: 25px; display: flex; justify-content: space-between;">
+                <span>Total Coins</span><b id="homeCoins">🪙 1,250</b>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="service-item" onclick="show404()"><span>📱</span><b>Airtime</b></div>
+            <div class="service-item" onclick="show404()"><span>🌐</span><b>Data</b></div>
+            <div class="service-item" onclick="show404()"><span>⚡</span><b>Electricity</b></div>
+            <div class="service-item" onclick="show404()"><span>🏍️</span><b>ORide</b></div>
+        </div>
+    </div>
+
+    <div id="rewards" class="page">
+        <header><b>Daily Rewards</b></header>
+        <div style="text-align: center; padding: 20px;">
+            <div class="wheel-container" id="wheel">
+                <div class="segment" style="background:#00d28d; transform: rotate(0deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#4b44e0; transform: rotate(45deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#ffcc00; transform: rotate(90deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#e74c3c; transform: rotate(135deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#00d28d; transform: rotate(180deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#4b44e0; transform: rotate(225deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#ffcc00; transform: rotate(270deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#e74c3c; transform: rotate(315deg) skewY(-45deg);"></div>
+            </div>
+            <button class="btn-green" onclick="spinWheel()">SPIN & WIN</button>
+            <h2 style="margin-top: 20px;">🪙 <span id="rewardCoins">1,250</span></h2>
+        </div>
+    </div>
+
+    <div id="finance" class="page">
+        <header><b>OWealth Savings</b></header>
+        <div class="main-card" style="background: var(--owealth-blue);">
+            <small>Invested Principal</small>
+            <h2>₦ 540,200.00</h2>
+            <p style="font-size: 0.7rem; margin-top: 10px;">Interest: 15% Per Annum</p>
+        </div>
+        <div style="background: white; margin: 15px; padding: 20px; border-radius: 15px;">
+            <b style="font-size: 0.85rem;">Profit Calculator</b>
+            <input type="range" id="roiRange" min="10000" max="1000000" step="10000" value="100000" style="width: 100%; margin: 15px 0;" oninput="updateROI()">
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                <span>Principal: <b id="roiPrincipal">₦100k</b></span>
+                <span>Annual Profit: <b style="color: var(--owealth-blue)" id="roiProfit">₦15k</b></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="cards" class="page">
+        <header><b>My Virtual Cards</b></header>
+        <div class="credit-card" id="cardElement" onclick="this.classList.toggle('flipped')">
+            <div class="card-face" style="background: #1a1a1a;">
+                <b style="font-style: italic;">OPay</b>
+                <div style="margin: 35px 0; font-size: 1.1rem; letter-spacing: 2.5px;">**** **** **** 8829</div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.7rem;"><span>GEORGE OBINNA</span><span>08/28</span></div>
+            </div>
+            <div class="card-face card-back"><b>CVV: 521</b></div>
+        </div>
+        <p style="text-align: center; font-size: 0.7rem; color: var(--text-light);">Tap card to reveal security code</p>
+    </div>
+
+    <div id="settings" class="page">
+        <header><b>Profile Settings</b></header>
+        <div style="background: white; margin: 15px; padding: 20px; border-radius: 15px; text-align: center;">
+            <div style="width: 60px; height: 60px; background: #eee; border-radius: 50%; margin: 0 auto 10px;"></div>
+            <b>George Obinna</b>
+            <p style="font-size: 0.75rem; color: var(--text-light);">Account: 8123456789</p>
+        </div>
+        <div style="background: white; margin: 0 15px; border-radius: 15px; overflow: hidden;">
+            <div class="service-item" style="border: none; border-bottom: 1px solid #f9f9f9;">Security Center</div>
+            <div class="service-item" style="border: none; border-bottom: 1px solid #f9f9f9;">Help & Support</div>
+            <div class="service-item" style="border: none; color: var(--danger);" onclick="location.reload()">Sign Out</div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-item active" onclick="navTo('home', this)"><span class="nav-icon">🏧</span>Home</div>
+        <div class="nav-item" onclick="navTo('rewards', this)"><span class="nav-icon">🎁</span>Rewards</div>
+        <div class="nav-item" onclick="navTo('finance', this)"><span class="nav-icon">📈</span>Finance</div>
+        <div class="nav-item" onclick="navTo('cards', this)"><span class="nav-icon">💳</span>Cards</div>
+        <div class="nav-item" onclick="navTo('settings', this)"><span class="nav-icon">⚙️</span>Settings</div>
+    </nav>
+</div>
+
+<script>
+    // NAVIGATION CONTROLLER
+    function navTo(pageId, navEl) {
+        // Hide all pages & overlays
+        document.querySelectorAll('.page, .overlay').forEach(p => p.style.display = 'none');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        
+        const target = document.getElementById(pageId);
+        if (target) {
+            target.style.display = 'flex';
+            if (navEl) navEl.classList.add('active');
+        } else {
+            show404();
+        }
+    }
+
+    function show404() {
+        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+        document.getElementById('page-404').style.display = 'flex';
+    }
+
+    // STATE MANAGER
+    let balanceCoins = 1250;
+    function spinWheel() {
+        const wheel = document.getElementById('wheel');
+        const rotation = Math.floor(Math.random() * 360) + 1800;
+        wheel.style.transform = `rotate(${rotation}deg)`;
+        
+        setTimeout(() => {
+            balanceCoins += 50;
+            document.getElementById('rewardCoins').innerText = balanceCoins.toLocaleString();
+            document.getElementById('homeCoins').innerText = `🪙 ` + balanceCoins.toLocaleString();
+            alert("Congrats! You've earned 50 OPay Coins!");
+        }, 3100);
+    }
+
+    function updateROI() {
+        const principal = document.getElementById('roiRange').value;
+        const profit = principal * 0.15;
+        document.getElementById('roiPrincipal').innerText = `₦${(principal/1000)}k`;
+        document.getElementById('roiProfit').innerText = `₦${(profit/1000)}k`;
+    }
+
+    // PWA & OFFLINE LOGIC
+    window.addEventListener('offline', () => { document.getElementById('page-offline').style.display = 'flex'; });
+    window.addEventListener('online', () => { document.getElementById('page-offline').style.display = 'none'; });
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('install-banner').style.display = 'flex';
+    });
+
+    document.getElementById('install-btn').addEventListener('click', () => {
+        document.getElementById('install-banner').style.display = 'none';
+        deferredPrompt.prompt();
+    });
+
+    // SERVICE WORKER REGISTRATION
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').then(() => console.log("goAPPs Service Worker Registered"));
+        });
+    }
+</script>
+</body>
+</html>        }
 
         /* HEADER & CARD REMAIN SAME */
         header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
