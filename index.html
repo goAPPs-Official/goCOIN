@@ -2,12 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>goAPPs | Universal Super App</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#00d28d">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPay Super App Prototype</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
     <style>
         :root {
             --opay-green: #00d28d;
@@ -20,21 +17,183 @@
             --danger: #ff4d4d;
         }
 
-        /* Base Reset */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #121212; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
-        /* Smartphone Container */
+        body { background-color: #121212; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
         .phone-container {
-            width: 375px; height: 750px; background: white; border-radius: 40px;
-            overflow: hidden; position: relative; border: 8px solid #333;
-            display: flex; flex-direction: column; box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+            width: 375px;
+            height: 750px;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #333;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Navigation Management */
-        .page { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding-bottom: 90px; background: var(--bg-gray); animation: fadeIn 0.3s ease; }
+        /* NAVIGATION LOGIC */
+        .page { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding-bottom: 80px; background: var(--bg-gray); }
         .page.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* REUSABLE STYLES */
+        header { padding: 40px 20px 10px; background: white; text-align: center; }
+        .card { margin: 15px; padding: 20px; border-radius: 20px; color: white; position: relative; }
+        .btn-green { background: var(--opay-green); color: white; border: none; border-radius: 12px; padding: 12px; font-weight: 700; cursor: pointer; }
+
+        /* --- DASHBOARD STYLES --- */
+        .home-card { background: var(--opay-gradient); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
+        .service-item { background: white; padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 10px; border: 1px solid #eee; }
+
+        /* --- WHEEL STYLES --- */
+        .wheel-container { width: 160px; height: 160px; border: 5px solid #eee; border-radius: 50%; position: relative; transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1); margin: 20px auto; overflow: hidden;}
+        .segment { position: absolute; width: 50%; height: 50%; transform-origin: 100% 100%; }
+
+        /* --- CARD STYLES --- */
+        .credit-card { width: 90%; height: 180px; margin: 20px auto; background: #1a1a1a; border-radius: 15px; padding: 20px; color: white; transition: 0.6s; transform-style: preserve-3d; }
+        .flipped { transform: rotateY(180deg); }
+
+        /* BOTTOM NAV */
+        nav {
+            display: flex; justify-content: space-around; padding: 12px 0; background: white;
+            border-top: 1px solid #eee; position: absolute; bottom: 0; width: 100%; z-index: 100;
+        }
+        .nav-item { text-align: center; font-size: 0.6rem; color: var(--text-light); cursor: pointer; }
+        .nav-item.active { color: var(--opay-green); }
+        .nav-icon { display: block; font-size: 1.2rem; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    
+    <div id="home" class="page active">
+        <header style="display:flex; justify-content:space-between; text-align:left;">
+            <div><small>Balance</small><h2 id="homeBal">₦ 2,800</h2></div>
+            <div style="width:35px; height:35px; background:#eee; border-radius:50%;"></div>
+        </header>
+        <div class="home-card card">
+            <b>George Obinna</b>
+            <p style="font-size:0.7rem; opacity:0.8; margin-top:10px;">Account: 8123456789</p>
+            <div style="margin-top:20px; font-size:1.5rem; font-weight:800;">OPay Super App</div>
+        </div>
+        <div class="grid">
+            <div class="service-item"><span>📱</span><b>Airtime</b></div>
+            <div class="service-item"><span>🌐</span><b>Data</b></div>
+            <div class="service-item"><span>⚡</span><b>Electricity</b></div>
+            <div class="service-item" style="background:var(--opay-green); color:white;"><span>📺</span><b>TV</b></div>
+        </div>
+    </div>
+
+    <div id="rewards" class="page">
+        <header><b>Rewards Center</b></header>
+        <div style="text-align:center; padding:20px;">
+            <div class="wheel-container" id="wheel">
+                <div class="segment" style="background:#00d28d; transform: rotate(0deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#4b44e0; transform: rotate(45deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#ffcc00; transform: rotate(90deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#e74c3c; transform: rotate(135deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#00d28d; transform: rotate(180deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#4b44e0; transform: rotate(225deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#ffcc00; transform: rotate(270deg) skewY(-45deg);"></div>
+                <div class="segment" style="background:#e74c3c; transform: rotate(315deg) skewY(-45deg);"></div>
+            </div>
+            <button class="btn-green" onclick="spinWheel()">SPIN TO WIN</button>
+            <h2 style="margin-top:20px;">🪙 <span id="rewardCoins">1,250</span></h2>
+        </div>
+    </div>
+
+    <div id="finance" class="page">
+        <header><b>OWealth</b></header>
+        <div class="card" style="background:var(--owealth-blue);">
+            <small>Total Savings</small>
+            <h2 id="financeBal">₦ 540,200</h2>
+            <p style="font-size:0.7rem; margin-top:10px;">Interest Rate: 15% P.A.</p>
+        </div>
+        <div style="padding:20px; background:white; margin:15px; border-radius:15px;">
+            <b>Daily Earnings</b>
+            <div style="color:var(--opay-green); font-size:1.5rem; font-weight:800; margin-top:10px;">+₦ 221.45</div>
+        </div>
+    </div>
+
+    <div id="cards" class="page">
+        <header><b>Card Manager</b></header>
+        <div class="credit-card" id="card">
+            <div style="font-weight:800;">OPay</div>
+            <div style="margin-top:40px; letter-spacing:3px;">**** **** **** 8829</div>
+            <div style="margin-top:30px; display:flex; justify-content:space-between; font-size:0.7rem;">
+                <span>GEORGE OBINNA</span><span>08/28</span>
+            </div>
+        </div>
+        <div style="padding:20px;">
+            <button class="btn-green" style="width:100%;" onclick="document.getElementById('card').classList.toggle('flipped')">Show CVV / Flip</button>
+        </div>
+    </div>
+
+    <div id="settings" class="page">
+        <header><b>Account Settings</b></header>
+        <div style="padding:20px; background:white; margin:15px; border-radius:15px; display:flex; align-items:center; gap:15px;">
+            <div style="width:50px; height:50px; background:#ddd; border-radius:50%;"></div>
+            <div><b>George Obinna</b><br><small>Tier 2 Verified</small></div>
+        </div>
+        <div style="background:white; margin:15px; border-radius:15px;">
+            <div style="padding:15px; border-bottom:1px solid #eee;">Security Center</div>
+            <div style="padding:15px; border-bottom:1px solid #eee;">Help Center</div>
+            <div style="padding:15px; color:red;" onclick="location.reload()">Log Out</div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-item active" onclick="switchPage('home', this)">
+            <span class="nav-icon">🏧</span>Home
+        </div>
+        <div class="nav-item" onclick="switchPage('rewards', this)">
+            <span class="nav-icon">🎁</span>Rewards
+        </div>
+        <div class="nav-item" onclick="switchPage('finance', this)">
+            <span class="nav-icon">📈</span>Finance
+        </div>
+        <div class="nav-item" onclick="switchPage('cards', this)">
+            <span class="nav-icon">💳</span>Cards
+        </div>
+        <div class="nav-item" onclick="switchPage('settings', this)">
+            <span class="nav-icon">⚙️</span>Settings
+        </div>
+    </nav>
+</div>
+
+<script>
+    // SPA Switching Logic
+    function switchPage(pageId, navEl) {
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        // Show selected page
+        document.getElementById(pageId).classList.add('active');
+        
+        // Update nav styling
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        navEl.classList.add('active');
+    }
+
+    // Shared State Logic
+    let coins = 1250;
+    function spinWheel() {
+        const wheel = document.getElementById('wheel');
+        const rand = Math.floor(Math.random() * 360) + 1800;
+        wheel.style.transform = `rotate(${rand}deg)`;
+        
+        setTimeout(() => {
+            coins += 50;
+            document.getElementById('rewardCoins').innerText = coins.toLocaleString();
+            alert("Won 50 Coins!");
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Full-Screen Overlays (Offline & 404) */
         .overlay {
