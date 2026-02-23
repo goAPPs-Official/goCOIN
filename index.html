@@ -3,33 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPay Dashboard - ORide</title>
+    <title>goAPPs Dashboard - goAPPs</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <style>
         /* PWA INSTALL PROMPT STYLE */
-    #install-banner {
-        position: absolute;
-        bottom: 90px;
-        left: 20px;
-        right: 20px;
-        background: var(--text-dark);
-        color: white;
-        padding: 15px;
-        border-radius: 15px;
-        display: none; /* Hidden by default */
-        justify-content: space-between;
-        align-items: center;
-        z-index: 200;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        animation: slideUp 0.5s ease;
-    }
+        #install-banner {
+            position: absolute;
+            bottom: 90px;
+            left: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 200;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
 
-    @keyframes slideUp { from { transform: translateY(100px); } to { transform: translateY(0); } }
+        @keyframes slideUp { from { transform: translateY(100px); } to { transform: translateY(0); } }
 
-    .install-text b { display: block; color: var(--opay-green); font-size: 0.9rem; }
-    .install-text small { font-size: 0.7rem; opacity: 0.8; }
-    :root {
+        :root {
             --opay-green: #00d28d;
             --opay-gradient: linear-gradient(135deg, #00d28d 0%, #4b44e0 100%);
             --text-dark: #333;
@@ -59,7 +57,6 @@
             flex-direction: column;
         }
 
-        /* HEADER & CARD REMAIN SAME */
         header { padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         .menu-icon { width: 22px; height: 16px; border-top: 2px solid var(--opay-green); border-bottom: 2px solid var(--opay-green); position: relative; }
         .menu-icon::after { content: ''; position: absolute; top: 5px; width: 100%; height: 2px; background: var(--opay-green); }
@@ -90,10 +87,8 @@
             font-size: 0.7rem; color: var(--text-light);
         }
 
-        /* SCROLLABLE SERVICES */
         .main-scroll { flex: 1; overflow-y: auto; padding: 0 15px 80px; }
         .section-title { font-weight: 800; margin: 20px 0 10px; font-size: 1.1rem; }
-
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
         .service-item {
@@ -106,69 +101,84 @@
         .service-info b { font-size: 0.8rem; display: block; }
         .service-info small { font-size: 0.6rem; opacity: 0.7; }
         
-        /* NEW ORIDE & OFOOD SPECIFICS */
-        .ride-icon { color: #e74c3c; font-size: 1.3rem; }
-        .food-icon { color: #f39c12; font-size: 1.3rem; }
-        
-        .badge-red {
-            background: var(--danger); color: white; font-size: 0.55rem;
-            padding: 4px 8px; border-radius: 10px; font-weight: bold;
-            position: absolute; right: 10px;
+        /* FOOTER NAVIGATION */
+        nav { 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 12px 0; 
+            background: white; 
+            border-top: 1px solid #eee; 
+            position: absolute; 
+            bottom: 0; 
+            width: 100%; 
         }
 
-        /* FOOTER */
-        nav { display: flex; justify-content: space-around; padding: 12px 0; background: white; border-top: 1px solid #eee; position: absolute; bottom: 0; width: 100%; }
-        .nav-item { text-align: center; font-size: 0.6rem; color: var(--text-light); }
-        .nav-item.active { color: var(--opay-green); }
+        /* Link specific styling */
+        nav a {
+            text-decoration: none;
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            font-size: 0.6rem;
+            transition: color 0.3s ease;
+        }
+
+        nav a.active {
+            color: var(--opay-green);
+        }
+
         .nav-icon { display: block; font-size: 1.2rem; margin-bottom: 2px; }
+
     </style>
 </head>
 <body>
     <div id="install-banner">
         <div class="install-text">
             <b>Install goAPPs</b>
-            <small>Access OPay faster from your home screen</small>
+            <small>Access goAPPs faster from your home screen</small>
         </div>
-        <button class="btn-green" id="install-btn" style="padding: 8px 15px; font-size: 0.75rem;">Install</button>
+        <button id="install-btn" style="background:var(--opay-green); color:white; border:none; border-radius:8px; padding: 8px 15px; font-size: 0.75rem; font-weight:bold;">Install</button>
     </div>
 
     <div id="offline-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
         <div style="font-size: 4rem; margin-bottom: 20px;">📡</div>
         <h2 style="color: var(--text-dark); margin-bottom: 10px;">You're Offline</h2>
         <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 30px;">Please check your internet connection to continue using goAPPs.</p>
-        <button class="btn-green" onclick="window.location.reload()" style="width: 200px;">Try Again</button>
+        <button style="background:var(--opay-green); color:white; border:none; padding:12px; border-radius:10px; width:200px;" onclick="window.location.reload()">Reload Page</button>
     </div>
 
 <div class="phone-container">
     <header>
         <div class="menu-icon"></div>
-        <div style="font-weight: 800; font-size: 1.1rem;">OPay</div>
+        <div style="font-weight: 800; font-size: 1.1rem;">goAPPs</div>
         <div class="user-avatar"><img src="https://i.pravatar.cc/100" alt="user"></div>
     </header>
 
     <div class="main-scroll">
         <div class="balance-card">
             <p style="font-size: 0.7rem; opacity: 0.8;">Good morning,</p>
-            <p class="username">George!</p>
+            <p class="username">Digital</p>
             <div style="display: flex; justify-content: space-between; font-size: 0.8rem; opacity: 0.9;">
-                <span>Balance</span><span>₦ 2600</span>
+                <span>💰Balance</span><span>₦5,600</span>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 0.8rem; opacity: 0.9;">
-                <span>Bonus</span><span>₦ 200</span>
+                <span>🏆Bonus</span><span>GC2.00</span>
             </div>
             <div class="total-row">
-                <span style="font-size: 0.8rem; font-weight: 400;">📁 Total balance</span>
-                <span>₦ 2800</span>
+                <span style="font-size: 0.8rem; font-weight: 400;">Total balance</span>
+                <span>₦5,600</span>
             </div>
             <div class="add-btn">+</div>
         </div>
 
         <div class="info-banner">
             <span style="font-size: 1.2rem;">📨</span>
-            <p>Transfer money from any bank app to OPay balance!</p>
+            <p>Transfer token points from any where to your goCOINS wallet!</p>
         </div>
 
-        <h3 class="section-title">Pay</h3>
+        <h3 class="section-title">Quick Actions</h3>
         <div class="grid">
             <div class="service-item">
                 <span style="color:var(--opay-green)">📱</span>
@@ -178,10 +188,6 @@
                 <span style="color:var(--opay-green)">🌐</span>
                 <div class="service-info"><b>Mobile data</b><small>10 companies</small></div>
             </div>
-            <div class="service-item">
-                <span style="color:var(--opay-green)">🎲</span>
-                <div class="service-info"><b>Betting</b><small>8 companies</small></div>
-            </div>
             <div class="service-item highlight">
                 <span>📺</span>
                 <div class="service-info"><b>TV</b><small>18 companies</small></div>
@@ -190,84 +196,73 @@
                 <span style="color:var(--opay-green)">⚡</span>
                 <div class="service-info"><b>Electricity</b><small>11 companies</small></div>
             </div>
-            <div class="service-item">
-                <span class="food-icon">🍲</span>
-                <div class="service-info"><b>OFood</b></div>
-            </div>
-            <div class="service-item">
-                <span class="ride-icon">🏍️</span>
-                <div class="service-info"><b>ORide</b><small>Try now</small></div>
-            </div>
-            <div class="service-item" style="border:none; background:transparent; justify-content:flex-end;">
-                <span class="badge-red">Get coupons now!</span>
-            </div>
         </div>
     </div>
 
     <nav>
-        <div class="nav-item active"><span class="nav-icon">🏧</span>Pay</div>
-        <div class="nav-item"><span class="nav-icon">🔄</span>Transfer</div>
-        <div class="nav-item"><span class="nav-icon">👛</span>Balance</div>
-        <div class="nav-item"><span class="nav-icon">💬</span>Support</div>
-        <div class="nav-item"><span class="nav-icon">⚙️</span>Settings</div>
+        <a href="index.html" class="nav-item active">
+            <span class="nav-icon">🏧</span>Home
+        </a>
+        <a href="transfer.html" class="nav-item">
+            <span class="nav-icon">👛</span>Transfer
+        </a>
+        <a href="reward.html" class="nav-item">
+            <span class="nav-icon">🎁</span>Rewards
+        </a>
+        <a href="balance.html" class="nav-item">
+            <span class="nav-icon">💰</span>Balance
+        </a>
+        <a href="settings.html" class="nav-item">
+            <span class="nav-icon">⚙️</span>Settings
+        </a>
     </nav>
+
 </div>
 <script>
     // Connection Monitoring
-    window.addEventListener('online', () => {
+    //window.addEventListener('online', () => {
         document.getElementById('offline-screen').style.display = 'none';
+        
+        // Connection Restored Toast
+        const toast = document.createElement('div');
+        toast.style = "position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:#00d28d; color:white; padding:10px 20px; border-radius:30px; font-size:0.8rem; z-index:2000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);";
+        toast.innerText = "⚡ Connection Restored!";
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     });
     
     window.addEventListener('offline', () => {
         document.getElementById('offline-screen').style.display = 'flex';
     });
 
-    window.addEventListener('online', () => {
-    const toast = document.createElement('div');
-    toast.style = "position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:#00d28d; color:white; padding:10px 20px; border-radius:30px; font-size:0.8rem; z-index:2000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);";
-    toast.innerText = "⚡ Connection Restored!";
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-});
-
     // Initial check
     if (!navigator.onLine) {
         document.getElementById('offline-screen').style.display = 'flex';
     }
-    // --- PWA INSTALL LOGIC ---
+
+    // PWA INSTALL LOGIC
     let deferredPrompt;
     const installBanner = document.getElementById('install-banner');
     const installBtn = document.getElementById('install-btn');
 
     window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
         e.preventDefault();
-        // Stash the event so it can be triggered later.
         deferredPrompt = e;
-        // Update UI notify the user they can install the PWA
         installBanner.style.display = 'flex';
 
         installBtn.addEventListener('click', () => {
-            // Hide the app provided install promotion
             installBanner.style.display = 'none';
-            // Show the install prompt
             deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
             deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the goAPPs install');
-                }
                 deferredPrompt = null;
             });
         });
     });
 
-    // Register Service Worker for Offline access
+    // Service Worker registration
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').then(reg => {
-                console.log('goAPPs Service Worker registered!');
-            }).catch(err => {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
                 console.log('SW registration failed: ', err);
             });
         });

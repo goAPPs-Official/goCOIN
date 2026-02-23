@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPay Profile & Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --opay-green: #00d28d;
+            --text-dark: #333;
+            --text-light: #888;
+            --bg-gray: #f8f9fb;
+            --card-bg: white;
+            --gold: #ffcc00;
+            --nav-bg: white;
+        }
+
+        /* DARK MODE VARIABLES */
+        .dark-theme {
+            --bg-gray: #121212;
+            --card-bg: #1e1e1e;
+            --text-dark: #ffffff;
+            --text-light: #b0b0b0;
+            --nav-bg: #1e1e1e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: background 0.3s, color 0.3s; }
+
+        body { background-color: #121212; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+        .phone-container {
+            width: 375px;
+            height: 750px;
+            background: var(--bg-gray);
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-header {
+            background: var(--card-bg);
+            padding: 50px 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar-large {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #eee;
+            border: 3px solid var(--opay-green);
+            overflow: hidden;
+        }
+
+        .user-info h2 { font-size: 1.2rem; font-weight: 800; color: var(--text-dark); }
+        .user-info p { font-size: 0.75rem; color: var(--text-light); }
+
+        .kyc-container {
+            background: var(--card-bg);
+            margin: 15px;
+            padding: 15px;
+            border-radius: 15px;
+            border-left: 5px solid var(--gold);
+        }
+
+        .kyc-label { font-size: 0.75rem; font-weight: 700; color: var(--text-dark); }
+        
+        .settings-list { flex: 1; overflow-y: auto; padding-bottom: 80px; }
+        .list-group { background: var(--card-bg); margin-bottom: 15px; }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        .item-text b { font-size: 0.85rem; display: block; color: var(--text-dark); }
+        .item-text small { font-size: 0.7rem; color: var(--text-light); }
+
+        .logout-btn {
+            margin: 20px;
+            padding: 15px;
+            background: var(--card-bg);
+            color: #e74c3c;
+            text-align: center;
+            border-radius: 15px;
+            font-weight: 700;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        nav { 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 12px 0; 
+            background: var(--nav-bg); 
+            border-top: 1px solid rgba(0,0,0,0.1); 
+            position: absolute; 
+            bottom: 0; 
+            width: 100%; 
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-light);
+            text-align: center;
+            font-size: 0.6rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-link.active { color: var(--opay-green); }
+
+        .nav-icon { display: block; font-size: 1.2rem; margin-bottom: 2px; }
+    </style>
+</head>
+    
+<body>
+
+<div class="phone-container">
+    <div class="profile-header">
+        <div class="avatar-large">
+            <img src="https://i.pravatar.cc/150?u=george" alt="George">
+        </div>
+        <div class="user-info">
+            <h2>George Obinna</h2>
+            <p>Account No: 8123456789</p>
+        </div>
+    </div>
+
+    <div class="settings-list">
+        <div class="kyc-container">
+            <div class="kyc-header">
+                <span class="kyc-label">Identity Verification</span>
+                <span class="kyc-tier">Tier 2</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill"></div>
+            </div>
+            <p class="kyc-footer">Upgrade to Tier 3 to increase daily limit to ₦5,000,000</p>
+        </div>
+
+        <div class="list-group">
+            <div class="list-item">
+                <div class="item-content">
+                    <span class="item-icon">🛡️</span>
+                    <div class="item-text"><b>Security Center</b><small>PIN, Fingerprint & Privacy</small></div>
+                </div>
+                <span class="chevron">❯</span>
+            </div>
+            <div class="list-item">
+                <div class="item-content">
+                    <span class="item-icon">📜</span>
+                    <div class="item-text"><b>Transaction History</b><small>View all your activity</small></div>
+                </div>
+                <span class="chevron">❯</span>
+            </div>
+        </div>
+
+        <div class="list-group">
+            <div class="list-item">
+                <div class="item-content">
+                    <span class="item-icon">🌙</span>
+                    <div class="item-text"><b>Dark Mode</b><small>Current: Off</small></div>
+                </div>
+                <span class="chevron">❯</span>
+            </div>
+            <div class="list-item">
+                <div class="item-content">
+                    <span class="item-icon">🎧</span>
+                    <div class="item-text"><b>Help Center</b><small>Get 24/7 support</small></div>
+                </div>
+                <span class="chevron">❯</span>
+            </div>
+        </div>
+
+        <div class="logout-btn" onclick="confirmLogout()">Log Out</div>
+    </div>
+
+    <nav>
+        <a href="index.html" class="nav-link">
+            <span class="nav-icon">🏧</span>Home
+        </a>
+        <a href="transfer.html" class="nav-link">
+            <span class="nav-icon">👛</span>Transfer
+        </a>
+        <a href="reward.html" class="nav-link">
+            <span class="nav-icon">🎁</span>Rewards
+        </a>
+        <a href="balance.html" class="nav-link">
+            <span class="nav-icon">💰</span>Balance
+        </a>
+        <a href="settings.html" class="nav-link active">
+            <span class="nav-icon">⚙️</span>Settings
+        </a>
+    </nav>
+</div>
+
+<script>
+    function confirmLogout() {
+        if(confirm("Are you sure you want to log out?")) {
+            window.location.reload();
+        }
+    }
+    // 1. Run this immediately when the page loads
+    window.onload = function() {
+        const savedTheme = localStorage.getItem('opayTheme');
+        const app = document.getElementById('appBody');
+        
+        if (savedTheme === 'dark') {
+            app.classList.add('dark-theme');
+            updateUI(true);
+        }
+    };
+
+    function toggleDarkMode() {
+        const app = document.getElementById('appBody');
+        const isDark = app.classList.toggle('dark-theme');
+        
+        // 2. Save the choice to localStorage
+        localStorage.setItem('opayTheme', isDark ? 'dark' : 'light');
+        
+        updateUI(isDark);
+    }
+
+    function updateUI(isDark) {
+        const status = document.getElementById('dmStatus');
+        const toggleTxt = document.getElementById('toggleTxt');
+        
+        if (isDark) {
+            status.innerText = "Current: On";
+            toggleTxt.innerText = "ON";
+        } else {
+            status.innerText = "Current: Off";
+            toggleTxt.innerText = "OFF";
+        }
+    }
+
+    function confirmLogout() {
+        if(confirm("Are you sure you want to log out?")) window.location.reload();
+    }
+
+    function toggleDarkMode() {
+        const app = document.getElementById('appBody');
+        const status = document.getElementById('dmStatus');
+        const toggleTxt = document.getElementById('toggleTxt');
+        
+        app.classList.toggle('dark-theme');
+        
+        if(app.classList.contains('dark-theme')) {
+            status.innerText = "Current: On";
+            toggleTxt.innerText = "ON";
+        } else {
+            status.innerText = "Current: Off";
+            toggleTxt.innerText = "OFF";
+        }
+    }
+
+    function confirmLogout() {
+        if(confirm("Are you sure you want to log out?")) window.location.reload();
+    }
+</script>
+
+</body>
+</html>
