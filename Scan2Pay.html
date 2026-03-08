@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSA | Geo-Terminal</title>
+    <title>DSA | On-Demand Terminal</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root {
@@ -25,16 +25,194 @@
             background: rgba(10, 15, 24, 0.9); position: sticky; top: 0; z-index: 10;
         }
 
+        /* NEW: Open Scanner Button Area */
+        .action-area { width: 92%; max-width: 450px; margin-top: 20px; }
+        
+        #toggle-scanner-btn {
+            width: 100%; padding: 18px; border-radius: 10px;
+            background: transparent; border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan); font-weight: 900; letter-spacing: 3px;
+            cursor: pointer; text-transform: uppercase; transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+        }
+        #toggle-scanner-btn.active {
+            background: var(--accent-cyan); color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--accent-cyan);
+        }
+
         /* HUD & Counter */
         .counter-hud {
-            display: flex; gap: 15px; margin: 20px 0;
-            padding: 10px 30px; border-radius: 50px;
-            border: 1px solid rgba(0, 242, 255, 0.2);
-            background: rgba(0, 242, 255, 0.05);
+            display: flex; gap: 15px; margin: 15px 0;
+            padding: 8px 25px; border-radius: 50px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .counter-val { font-size: 1.4rem; font-weight: 900; color: var(--accent-cyan); transition: all 0.3s; }
-        .counter-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; align-self: center; color: #94a3b8; }
-        .pulse-glow { text-shadow: 0 0 15px var(--accent-cyan); transform: scale(1.1); }
+        .counter-val { font-size: 1.2rem; font-weight: 900; color: var(--accent-cyan); }
+        .counter-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; align-self: center; color: #64748b; }
+
+        .scanner-frame {
+            width: 92%; max-width: 450px; border-radius: 15px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1); display: none; /* Hidden by default */
+        }
+
+        /* History Logs */
+        .history-container { width: 92%; max-width: 450px; margin-top: 25px; padding-bottom: 50px; }
+        .history-item {
+            background: var(--panel-bg); padding: 16px; margin-bottom: 12px;
+            border-radius: 10px; border-left: 4px solid var(--accent-cyan);
+            animation: slideIn 0.4s ease-out;
+        }
+        .history-data { font-size: 0.95rem; margin-bottom: 10px; word-break: break-all; color: #e2e8f0; }
+        .history-meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-family: monospace; }
+        
+        .map-link {
+            color: var(--accent-green); text-decoration: none;
+            display: flex; align-items: center; gap: 5px;
+            padding: 4px 8px; border-radius: 4px; background: rgba(0, 255, 136, 0.05);
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="font-weight: 900; letter-spacing: 5px; color: var(--accent-cyan);">DSA TERMINAL PRO</div>
+    </header>
+
+    <div class="action-area">
+        <button id="toggle-scanner-btn" onclick="toggleScanner()">Open Scanner</button>
+    </div>
+
+    <div class="counter-hud">
+        <span class="counter-label">Global Acquisitions</span>
+        <span id="scan-count" class="counter-val">0</span>
+    </div>
+
+    <div class="scanner-frame" id="scanner-view">
+        <div id="reader"></div>
+    </div>
+
+    <div class="history-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span style="font-size: 11px; letter-spacing: 2px; color: #475569; font-weight: bold;">DATA STREAM</span>
+            <button style="background:transparent; color:#ff4b2b; border:1px solid #ff4b2b; font-size:9px; cursor:pointer;" onclick="clearAll()">Clear</button>
+        </div>
+        <div id="log-list"></div>
+    </div>
+
+    <script>
+        const html5QrCode = new Html5Qrcode("reader");
+        let scannerIsRunning = false;
+        let totalScans = parseInt(localStorage.getItem('dsa_total_scans') || '0');
+
+        function toggleScanner() {
+            const btn = document.getElementById('toggle-scanner-btn');
+            const view = document.getElementById('scanner-view');
+
+            if (!scannerIsRunning) {
+                view.style.display = 'block';
+                btn.innerText = "Scanner Active";
+                btn.classList.add('active');
+                
+                html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    { fps: 20, qrbox: 250 }, 
+                    onScanSuccess
+                ).then(() => {
+                    scannerIsRunning = true;
+                }).catch(err => {
+                    alert("Camera Permission Denied");
+                    view.style.display = 'none';
+                    btn.innerText = "Open Scanner";
+                    btn.classList.remove('active');
+                });
+            } else {
+                html5QrCode.stop().then(() => {
+                    view.style.display = 'none';
+                    btn.innerText = "Open Scanner";
+                    btn.classList.remove('active');
+                    scannerIsRunning = false;
+                });
+            }
+        }
+
+        async function onScanSuccess(decodedText) {
+            html5QrCode.pause();
+            playChime();
+
+            const coords = await getLocation();
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            saveEntry(decodedText, timestamp, coords);
+            
+            totalScans++;
+            localStorage.setItem('dsa_total_scans', totalScans);
+            document.getElementById('scan-count').innerText = totalScans;
+
+            setTimeout(() => html5QrCode.resume(), 2500);
+        }
+
+        async function getLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) resolve(null);
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                    () => resolve(null),
+                    { timeout: 5000 }
+                );
+            });
+        }
+
+        function saveEntry(text, time, coords) {
+            let logs = JSON.parse(localStorage.getItem('dsa_geo_logs') || '[]');
+            logs.unshift({ text, time, coords });
+            localStorage.setItem('dsa_geo_logs', JSON.stringify(logs.slice(0, 25)));
+            renderLogs();
+        }
+
+        function renderLogs() {
+            const list = document.getElementById('log-list');
+            const logs = JSON.parse(localStorage.getItem('dsa_geo_logs') || '[]');
+            list.innerHTML = logs.length ? '' : '<div style="color:#334155; font-size:11px; text-align:center;">AWAITING SIGNAL...</div>';
+            
+            logs.forEach(log => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                let loc = log.coords ? `<a href="https://www.google.com/maps?q=${log.coords.lat},${log.coords.lng}" target="_blank" class="map-link">📍 MAP</a>` : '<span>LOC_OFF</span>';
+                item.innerHTML = `
+                    <div class="history-data">${log.text}</div>
+                    <div class="history-meta"><span>${log.time}</span>${loc}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function clearAll() {
+            localStorage.removeItem('dsa_geo_logs');
+            localStorage.setItem('dsa_total_scans', '0');
+            totalScans = 0;
+            document.getElementById('scan-count').innerText = 0;
+            renderLogs();
+        }
+
+        function playChime() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        }
+
+        window.onload = () => {
+            document.getElementById('scan-count').innerText = totalScans;
+            renderLogs();
+        };
+    </script>
+</body>
+</html>        .pulse-glow { text-shadow: 0 0 15px var(--accent-cyan); transform: scale(1.1); }
 
         .scanner-frame {
             width: 92%; max-width: 450px; border-radius: 15px; overflow: hidden;
