@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DSA | Global QR Terminal</title>
+    <title>DSA | Geo-Terminal</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root {
@@ -25,52 +25,61 @@
             background: rgba(10, 15, 24, 0.9); position: sticky; top: 0; z-index: 10;
         }
 
-        /* Scan Counter HUD */
+        /* HUD & Counter */
         .counter-hud {
-            display: flex; gap: 20px; margin: 20px 0;
-            background: linear-gradient(90deg, transparent, rgba(0, 242, 255, 0.1), transparent);
-            padding: 10px 40px; border-radius: 50px;
+            display: flex; gap: 15px; margin: 20px 0;
+            padding: 10px 30px; border-radius: 50px;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            background: rgba(0, 242, 255, 0.05);
         }
-        .counter-val { font-size: 1.5rem; font-weight: 900; color: var(--accent-cyan); }
-        .counter-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; align-self: center; }
+        .counter-val { font-size: 1.4rem; font-weight: 900; color: var(--accent-cyan); transition: all 0.3s; }
+        .counter-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; align-self: center; color: #94a3b8; }
+        .pulse-glow { text-shadow: 0 0 15px var(--accent-cyan); transform: scale(1.1); }
 
         .scanner-frame {
-            width: 90%; max-width: 450px; border-radius: 12px; overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
+            width: 92%; max-width: 450px; border-radius: 15px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1); position: relative;
         }
 
-        /* History List */
-        .history-container {
-            width: 90%; max-width: 450px; margin-top: 25px; flex-grow: 1;
-        }
+        /* History Logs */
+        .history-container { width: 92%; max-width: 450px; margin-top: 25px; padding-bottom: 50px; }
         .history-item {
-            background: var(--panel-bg); padding: 15px; margin-bottom: 10px;
-            border-radius: 8px; border-left: 3px solid var(--accent-cyan);
-            animation: slideIn 0.3s ease-out;
+            background: var(--panel-bg); padding: 16px; margin-bottom: 12px;
+            border-radius: 10px; border-left: 4px solid var(--accent-cyan);
+            animation: slideIn 0.4s ease-out; position: relative;
         }
-        .history-data { font-size: 0.9rem; margin-bottom: 8px; word-break: break-all; }
+        .history-data { font-size: 0.95rem; margin-bottom: 10px; word-break: break-all; color: #e2e8f0; }
+        
         .history-meta { 
-            display: flex; justify-content: space-between; 
-            font-size: 10px; color: #64748b; font-family: monospace;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 11px; color: #64748b; font-family: 'Courier New', monospace;
         }
-        .location-tag { color: var(--accent-green); }
+
+        /* Map Link Styling */
+        .map-link {
+            color: var(--accent-green); text-decoration: none;
+            display: flex; align-items: center; gap: 5px;
+            padding: 4px 8px; border-radius: 4px; background: rgba(0, 255, 136, 0.05);
+            transition: 0.2s;
+        }
+        .map-link:hover { background: rgba(0, 255, 136, 0.15); color: #fff; }
 
         .btn-clear {
             background: transparent; color: #ff4b2b; border: 1px solid #ff4b2b;
-            padding: 5px 10px; font-size: 10px; cursor: pointer; border-radius: 4px;
+            padding: 6px 12px; font-size: 10px; cursor: pointer; border-radius: 4px; text-transform: uppercase;
         }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-weight: 900; letter-spacing: 4px; color: var(--accent-cyan);">DSA SCAN TERMINAL</div>
+        <div style="font-weight: 900; letter-spacing: 5px; color: var(--accent-cyan);">DSA TERMINAL PRO</div>
     </header>
 
     <div class="counter-hud">
-        <span class="counter-label">Total Scans:</span>
+        <span class="counter-label">Global Acquisitions</span>
         <span id="scan-count" class="counter-val">0</span>
     </div>
 
@@ -80,8 +89,8 @@
 
     <div class="history-container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <span style="font-size: 12px; letter-spacing: 1px; color: #475569;">ACQUISITION LOGS</span>
-            <button class="btn-clear" onclick="clearAll()">Purge Logs</button>
+            <span style="font-size: 11px; letter-spacing: 2px; color: #475569; font-weight: bold;">LOG ENTRY STREAM</span>
+            <button class="btn-clear" onclick="clearAll()">Wipe Memory</button>
         </div>
         <div id="log-list"></div>
     </div>
@@ -90,59 +99,69 @@
         const html5QrCode = new Html5Qrcode("reader");
         let totalScans = parseInt(localStorage.getItem('dsa_total_scans') || '0');
 
-        function updateCounter() {
-            document.getElementById('scan-count').innerText = totalScans;
+        function updateCounterUI(shouldAnimate = false) {
+            const el = document.getElementById('scan-count');
+            el.innerText = totalScans;
+            if (shouldAnimate) {
+                el.classList.add('pulse-glow');
+                setTimeout(() => el.classList.remove('pulse-glow'), 500);
+            }
         }
 
-        // Get Location Wrapper
-        function getLocation() {
+        async function getLocation() {
             return new Promise((resolve) => {
-                if (!navigator.geolocation) resolve("Location Blocked");
+                if (!navigator.geolocation) resolve(null);
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => resolve(`${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)}`),
-                    () => resolve("Unknown Loc")
+                    (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+                    () => resolve(null),
+                    { timeout: 5000 }
                 );
             });
         }
 
         async function onScanSuccess(decodedText) {
-            // Keep scanner open by NOT stopping it, but adding a "cooldown"
-            html5QrCode.pause(); // Pause to prevent double scans
+            html5QrCode.pause();
             playChime();
 
-            const loc = await getLocation();
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const coords = await getLocation();
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             
-            saveEntry(decodedText, timestamp, loc);
+            saveEntry(decodedText, timestamp, coords);
             
             totalScans++;
             localStorage.setItem('dsa_total_scans', totalScans);
-            updateCounter();
+            updateCounterUI(true);
 
-            // Resume after 2 seconds
-            setTimeout(() => html5QrCode.resume(), 2000);
+            setTimeout(() => html5QrCode.resume(), 2500);
         }
 
-        function saveEntry(text, time, loc) {
-            let logs = JSON.parse(localStorage.getItem('dsa_global_logs') || '[]');
-            logs.unshift({ text, time, loc });
-            localStorage.setItem('dsa_global_logs', JSON.stringify(logs.slice(0, 20)));
+        function saveEntry(text, time, coords) {
+            let logs = JSON.parse(localStorage.getItem('dsa_geo_logs') || '[]');
+            logs.unshift({ text, time, coords });
+            localStorage.setItem('dsa_geo_logs', JSON.stringify(logs.slice(0, 25)));
             renderLogs();
         }
 
         function renderLogs() {
             const list = document.getElementById('log-list');
-            const logs = JSON.parse(localStorage.getItem('dsa_global_logs') || '[]');
-            list.innerHTML = logs.length ? '' : '<div style="color:#334155; font-size:12px;">Waiting for data...</div>';
+            const logs = JSON.parse(localStorage.getItem('dsa_geo_logs') || '[]');
+            list.innerHTML = logs.length ? '' : '<div style="color:#334155; font-size:12px; text-align:center; margin-top:20px;">SYSTEM READY: AWAITING INPUT</div>';
             
             logs.forEach(log => {
                 const item = document.createElement('div');
                 item.className = 'history-item';
+                
+                let locationHtml = '<span>[GPS LOCKED]</span>';
+                if (log.coords) {
+                    const mapUrl = `https://www.google.com/maps?q=${log.coords.lat},${log.coords.lng}`;
+                    locationHtml = `<a href="${mapUrl}" target="_blank" class="map-link">📍 ${log.coords.lat.toFixed(3)}, ${log.coords.lng.toFixed(3)}</a>`;
+                }
+
                 item.innerHTML = `
                     <div class="history-data">${log.text}</div>
                     <div class="history-meta">
                         <span>${log.time}</span>
-                        <span class="location-tag">GPS: ${log.loc}</span>
+                        ${locationHtml}
                     </div>
                 `;
                 list.appendChild(item);
@@ -150,28 +169,30 @@
         }
 
         function clearAll() {
-            localStorage.removeItem('dsa_global_logs');
-            localStorage.setItem('dsa_total_scans', '0');
-            totalScans = 0;
-            updateCounter();
-            renderLogs();
+            if(confirm("Confirm system wipe? All logs and counters will be erased.")) {
+                localStorage.removeItem('dsa_geo_logs');
+                localStorage.setItem('dsa_total_scans', '0');
+                totalScans = 0;
+                updateCounterUI();
+                renderLogs();
+            }
         }
 
         function playChime() {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.frequency.setValueAtTime(500, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
             osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
         window.onload = () => {
-            updateCounter();
+            updateCounterUI();
             renderLogs();
-            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, onScanSuccess);
+            html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, onScanSuccess);
         };
     </script>
 </body>
