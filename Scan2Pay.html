@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA | QR Terminal + Logs</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root {
+            --bg-dark: #05080a;
+            --accent-cyan: #00f2ff;
+            --accent-green: #00ff88;
+            --log-bg: rgba(255, 255, 255, 0.03);
+        }
+
+        body {
+            margin: 0; background-color: var(--bg-dark); color: white;
+            font-family: 'Segoe UI', sans-serif; display: flex;
+            flex-direction: column; align-items: center; min-height: 100vh;
+        }
+
+        header {
+            width: 100%; padding: 20px; text-align: center;
+            border-bottom: 1px solid rgba(0, 242, 255, 0.1);
+            background: rgba(10, 15, 24, 0.9); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 10;
+        }
+
+        .scanner-frame {
+            width: 90%; max-width: 450px; margin-top: 30px;
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* Scan Results */
+        #result-card {
+            margin: 20px 0; width: 90%; max-width: 450px;
+            background: var(--log-bg); border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px; border-radius: 8px; display: none;
+        }
+
+        /* History Section */
+        .history-section {
+            width: 90%; max-width: 450px; margin-top: 20px; padding-bottom: 40px;
+        }
+        .history-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 5px;
+        }
+        .history-item {
+            background: var(--log-bg); padding: 12px; margin-bottom: 8px;
+            border-radius: 6px; font-size: 0.85rem; border-left: 3px solid #333;
+            animation: fadeIn 0.3s ease;
+        }
+        .history-item.is-url { border-left-color: var(--accent-green); }
+        .timestamp { font-size: 10px; color: #666; display: block; margin-top: 5px; }
+
+        .btn {
+            padding: 10px 15px; border: none; border-radius: 4px;
+            cursor: pointer; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;
+        }
+        .btn-clear { background: transparent; color: #ff4b2b; border: 1px solid #ff4b2b; font-size: 0.65rem; }
+        .btn-cyan { background: var(--accent-cyan); color: var(--bg-dark); width: 100%; margin-top: 10px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div style="font-weight: 900; letter-spacing: 4px; color: var(--accent-cyan);">DSA TERMINAL</div>
+    </header>
+
+    <div class="scanner-frame"><div id="reader"></div></div>
+
+    <div id="result-card">
+        <div id="scanned-data" style="word-break: break-all;"></div>
+        <button id="open-btn" class="btn btn-cyan" style="display:none; background: var(--accent-green);">Open Link</button>
+        <button class="btn btn-cyan" onclick="restartScanner()">Rescan</button>
+    </div>
+
+    <div class="history-section">
+        <div class="history-header">
+            <span style="font-size: 12px; letter-spacing: 1px; color: var(--accent-cyan);">DATA LOGS</span>
+            <button class="btn btn-clear" onclick="clearHistory()">Clear History</button>
+        </div>
+        <div id="history-list"></div>
+    </div>
+
+    <script>
+        const html5QrCode = new Html5Qrcode("reader");
+        const historyList = document.getElementById('history-list');
+
+        function isURL(str) { return /^(https?:\/\/|www\.)/i.test(str); }
+
+        const onScanSuccess = (text) => {
+            html5QrCode.stop().then(() => {
+                saveToHistory(text);
+                displayResult(text);
+                playBeep();
+            });
+        };
+
+        function displayResult(text) {
+            document.getElementById('result-card').style.display = 'block';
+            document.getElementById('scanned-data').innerText = text;
+            const openBtn = document.getElementById('open-btn');
+            if (isURL(text)) {
+                openBtn.style.display = 'block';
+                openBtn.onclick = () => window.open(text.startsWith('http') ? text : 'https://' + text, '_blank');
+            } else {
+                openBtn.style.display = 'none';
+            }
+        }
+
+        function saveToHistory(text) {
+            let history = JSON.parse(localStorage.getItem('dsa_qr_history') || '[]');
+            const entry = { text, time: new Date().toLocaleString(), isUrl: isURL(text) };
+            history.unshift(entry); // Add to top
+            localStorage.setItem('dsa_qr_history', JSON.stringify(history.slice(0, 10))); // Keep last 10
+            renderHistory();
+        }
+
+        function renderHistory() {
+            let history = JSON.parse(localStorage.getItem('dsa_qr_history') || '[]');
+            historyList.innerHTML = history.length ? '' : '<div style="color:#444; font-size:12px;">No logs found.</div>';
+            history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `history-item ${item.isUrl ? 'is-url' : ''}`;
+                div.innerHTML = `<div>${item.text}</div><span class="timestamp">${item.time}</span>`;
+                historyList.appendChild(div);
+            });
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('dsa_qr_history');
+            renderHistory();
+        }
+
+        function restartScanner() {
+            document.getElementById('result-card').style.display = 'none';
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
+        }
+
+        function playBeep() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        window.onload = () => { renderHistory(); restartScanner(); };
+    </script>
+</body>
+</html>
