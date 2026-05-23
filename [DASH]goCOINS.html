@@ -394,14 +394,14 @@
 <body>
 
     <header>
-        <div class="logo">💰 goCOINs</div>
+        <div class="logo">💰goCOINs</div>
         <div class="node-badge">SECURE WALLET v2.8</div>
     </header>
 
     <div class="container">
         <div class="wallet-hero">
             <div class="hero-lbl">Token Balance</div>
-            <div class="hero-bal" id="activeBalanceDisplay">***.00 GC</div>
+            <div class="hero-bal" id="activeBalanceDisplay">***.00 GcT</div>
             <div class="hero-sub">
                 <div class="pulse-dot"></div> Live Network Synchronized
             </div>
@@ -417,10 +417,10 @@
             <div class="panel-title">Secure Token Transfer</div>
             <div class="form-group">
                 <label>Recipient Address / WhatsApp</label>
-                <input type="text" id="tx-recipient" placeholder="e.g., +234... or Address">
+                <input type="text" id="tx-recipient" placeholder="Wallet Address">
             </div>
             <div class="form-group">
-                <label>Amount to Transfer (GC)</label>
+                <label>Amount to Transfer (GcT)</label>
                 <input type="number" id="tx-amount" placeholder="0.00" step="any">
             </div>
             <button class="gold-btn" onclick="executeTransfer()">Authorize &amp; Send</button>
@@ -439,10 +439,10 @@
             <div class="panel-title">Request Payment / Receive Top-Up</div>
             <div class="form-group">
                 <label>Payer Identity / WhatsApp</label>
-                <input type="text" id="rx-payer" placeholder="e.g., Payer's WhatsApp or ID">
+                <input type="text" id="rx-payer" placeholder="e.g., Payer'sWallet Address">
             </div>
             <div class="form-group">
-                <label>Request Amount (GC)</label>
+                <label>Request Amount (GcT)</label>
                 <input type="number" id="rx-amount" placeholder="0.00" step="any">
             </div>
             <button class="gold-btn" onclick="executeReceive()">Generate Request Notification</button>
@@ -451,7 +451,7 @@
         <div class="card">
             <div class="panel-title">🪙 Token Value Converter</div>
             <div class="form-group">
-                <label>Input Tokens to Convert (GC)</label>
+                <label>Input Tokens to Convert (GcT)</label>
                 <input type="number" id="calc-tokens" placeholder="0" oninput="runTokenConversion()">
             </div>
             <div class="result-box">
@@ -460,7 +460,7 @@
             </div>
             <div class="form-group" style="margin-bottom:0;">
                 <label>Fixed Exchange Rate Settlement</label>
-                <div class="static-display">1 GC = ₦0.80 NGN</div>
+                <div class="static-display">1 GC = ₦0.84 NGN</div>
             </div>
         </div>
     </div>
