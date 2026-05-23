@@ -572,7 +572,7 @@
     <div class="container">
         <div class="wallet-hero">
             <div class="hero-lbl">Token Balance</div>
-            <div class="hero-bal" id="activeBalanceDisplay">***.00 GC</div>
+            <div class="hero-bal" id="activeBalanceDisplay">***.00 GcT</div>
             <div class="hero-sub">
                 <div class="pulse-dot"></div> Live Network Synchronized
             </div>
@@ -592,7 +592,7 @@
             </div>
             <div class="form-group">
                 <label>Amount to Transfer (GC)</label>
-                <input type="number" id="tx-amount" placeholder="0.00" step="any">
+                <input type="number" id="tx-amount" placeholder="1000.00" step="any">
             </div>
             <button class="gold-btn" onclick="executeTransfer()">Authorize &amp; Send</button>
         </div>
@@ -614,7 +614,7 @@
             </div>
             <div class="form-group">
                 <label>Request Amount (GC)</label>
-                <input type="number" id="rx-amount" placeholder="0.00" step="any">
+                <input type="number" id="rx-amount" placeholder="1000.00" step="any">
             </div>
             <button class="gold-btn" onclick="executeReceive()">Generate Request Notification</button>
         </div>
@@ -676,7 +676,7 @@
 
     <script>
         const WA_DESTINATION = "2348157505037";
-        const VAL_EXCHANGE_RATE = 0.80;
+        const VAL_EXCHANGE_RATE = 0.83;
         const STORAGE_KEY = "gocoins_wallet_persistence";
 
         let walletState = { balance: 0.00 };
@@ -699,7 +699,7 @@
 
         function updateBalanceMetric() {
             document.getElementById('activeBalanceDisplay').innerText =
-                walletState.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " GC";
+                walletState.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " GcT";
         }
 
         /* ── Tab Switching ── */
@@ -784,7 +784,7 @@
             const message = `📤 *goCOINs WALLET TRANSFER REQUEST*\n\n` +
                 `*Action:* Wallet Transfer\n` +
                 `*Recipient:* ${recipient}\n` +
-                `*Transfer Amount:* ${amount.toFixed(2)} GC\n` +
+                `*Transfer Amount:* ${amount.toFixed(2)} GcT\n` +
                 `*NGN Equiv:* ₦${ngn}\n` +
                 `*Time:* ${ts}\n\n` +
                 `_Please verify and process this transfer accordingly._`;
@@ -795,7 +795,7 @@
                 rows: [
                     { label: 'Action', value: 'Wallet Transfer' },
                     { label: 'Recipient', value: recipient },
-                    { label: 'Transfer Amount', value: `${amount.toFixed(2)} GC`, highlight: true },
+                    { label: 'Transfer Amount', value: `${amount.toFixed(2)} GcT`, highlight: true },
                     { label: 'NGN Equiv', value: `₦${ngn}` },
                     { label: 'Via', value: '+2348157505037' },
                 ],
@@ -818,7 +818,7 @@
             const message = `💳 *goCOINs NET-INJECTION VOUCHER*\n\n` +
                 `*Action:* Wallet Funding\n` +
                 `*Voucher PIN:* ${pinValue}\n` +
-                `*Credit Value:* +${injectionVolume.toFixed(2)} GC\n` +
+                `*Credit Value:* +${injectionVolume.toFixed(2)} GcT\n` +
                 `*Time:* ${ts}\n\n` +
                 `_Please verify and credit this wallet accordingly._`;
 
@@ -828,8 +828,8 @@
                 rows: [
                     { label: 'Action', value: 'Voucher Top-Up' },
                     { label: 'Voucher PIN', value: pinValue },
-                    { label: 'Credit Amount', value: `+${injectionVolume.toFixed(2)} GC`, highlight: true },
-                    { label: 'Balance After', value: `${newBal} GC` },
+                    { label: 'Credit Amount', value: `+${injectionVolume.toFixed(2)} GcT`, highlight: true },
+                    { label: 'Balance After', value: `${newBal} GcT` },
                     { label: 'Via', value: '+2348157505037' },
                 ],
                 message,
@@ -852,7 +852,7 @@
             const message = `📥 *goCOINs INBOUND INVOICE GENERATOR*\n\n` +
                 `*Type:* Payment Request\n` +
                 `*Request From:* ${payer}\n` +
-                `*Requested Amount:* ${amount.toFixed(2)} GC\n` +
+                `*Requested Amount:* ${amount.toFixed(2)} GcT\n` +
                 `*NGN Equiv:* ₦${ngn}\n` +
                 `*Time:* ${ts}\n\n` +
                 `_Please process this incoming payment request._`;
