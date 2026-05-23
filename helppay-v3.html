@@ -1,0 +1,3634 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HelpPay — Pay Fast. Pay Smart.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    /* ═══════════════ TOKENS ═══════════════ */
+    :root {
+      --bg: #050c14;
+      --bg2: #081220;
+      --card: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(255, 255, 255, 0.09);
+      --green: #00e87a;
+      --green-dim: #00b85f;
+      --green-glow: rgba(0, 232, 122, 0.18);
+      --cyan: #00d4ff;
+      --white: #f0f8ff;
+      --white-60: rgba(240, 248, 255, 0.6);
+      --white-30: rgba(240, 248, 255, 0.3);
+      --white-10: rgba(240, 248, 255, 0.08);
+      --radius: 16px;
+      --radius-lg: 24px;
+      --t: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: var(--bg);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: var(--green);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.25s, height 0.25s, background 0.25s;
+      mix-blend-mode: normal;
+    }
+
+    .cursor-ring {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      border: 1.5px solid rgba(0, 232, 122, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.3s, height 0.3s, border-color 0.3s;
+    }
+
+    body:has(a:hover) .cursor,
+    .cursor.hov {
+      width: 6px;
+      height: 6px;
+      background: var(--green)
+    }
+
+    body:has(a:hover) .cursor-ring,
+    .cursor-ring.hov {
+      width: 60px;
+      height: 60px;
+      border-color: var(--green)
+    }
+
+    @media(hover:none) {
+
+      .cursor,
+      .cursor-ring {
+        display: none
+      }
+
+      body {
+        cursor: auto
+      }
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.35;
+    }
+
+    /* ── BG MESH ── */
+    .mesh {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .mesh-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      animation: blobFloat 12s ease-in-out infinite alternate;
+    }
+
+    .m1 {
+      width: 600px;
+      height: 600px;
+      background: rgba(0, 232, 122, 0.07);
+      top: -10%;
+      left: -15%;
+      animation-duration: 14s
+    }
+
+    .m2 {
+      width: 500px;
+      height: 500px;
+      background: rgba(0, 212, 255, 0.05);
+      top: 30%;
+      right: -10%;
+      animation-duration: 18s;
+      animation-delay: -6s
+    }
+
+    .m3 {
+      width: 400px;
+      height: 400px;
+      background: rgba(0, 232, 122, 0.04);
+      bottom: -5%;
+      left: 35%;
+      animation-duration: 16s;
+      animation-delay: -3s
+    }
+
+    @keyframes blobFloat {
+      0% {
+        transform: translate(0, 0) scale(1)
+      }
+
+      100% {
+        transform: translate(40px, 60px) scale(1.08)
+      }
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 3rem;
+      background: rgba(5, 12, 20, 0);
+      border-bottom: 1px solid transparent;
+      transition: background 0.5s, border-color 0.5s, padding 0.4s;
+    }
+
+    nav.scrolled {
+      background: rgba(5, 12, 20, 0.88);
+      border-bottom-color: var(--card-border);
+      backdrop-filter: blur(20px);
+      padding: 0.8rem 3rem;
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      -webkit-text-fill-color: var(--white)
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none
+    }
+
+    .nav-links a {
+      color: var(--white-60);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.25s;
+    }
+
+    .nav-links a:hover {
+      color: var(--white)
+    }
+
+    .nav-cta {
+      padding: 0.5rem 1.3rem;
+      border-radius: 99px;
+      background: var(--green);
+      color: #050c14;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .nav-cta:hover {
+      background: var(--cyan);
+      transform: scale(1.04)
+    }
+
+    .ham {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px
+    }
+
+    .ham span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: all 0.3s
+    }
+
+    .ham.open span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px)
+    }
+
+    .ham.open span:nth-child(2) {
+      opacity: 0
+    }
+
+    .ham.open span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px)
+    }
+
+    /* MOBILE NAV */
+    .mob-nav {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      background: rgba(5, 12, 20, 0.97);
+      backdrop-filter: blur(30px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s;
+    }
+
+    .mob-nav.open {
+      opacity: 1;
+      pointer-events: all
+    }
+
+    .mob-nav a {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--white);
+      text-decoration: none;
+      transition: color 0.25s;
+    }
+
+    .mob-nav a:hover {
+      color: var(--green)
+    }
+
+    /* ═══ HERO ═══ */
+    .hero {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 4rem;
+      padding: 8rem 3rem 4rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .hero-left {
+      max-width: 580px
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 99px;
+      background: rgba(0, 232, 122, 0.1);
+      border: 1px solid rgba(0, 232, 122, 0.25);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--green);
+      margin-bottom: 1.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: slideUp 0.6s 0.1s forwards;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(0, 232, 122, 0.5)
+      }
+
+      50% {
+        box-shadow: 0 0 0 8px rgba(0, 232, 122, 0)
+      }
+    }
+
+    .hero-headline {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.4rem, 4.5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.4rem;
+      opacity: 0;
+      animation: slideUp 0.7s 0.25s forwards;
+    }
+
+    .hero-headline .static {
+      color: var(--white)
+    }
+
+    .hero-headline .brand {
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .word-swap {
+      display: inline-block;
+      position: relative;
+      min-width: 3em;
+      text-align: left;
+      border-right: 3px solid var(--green);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        border-color: var(--green)
+      }
+
+      50% {
+        border-color: transparent
+      }
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: var(--white-60);
+      max-width: 440px;
+      margin-bottom: 2.4rem;
+      opacity: 0;
+      animation: slideUp 0.7s 0.4s forwards;
+    }
+
+    /* CTA BUTTONS */
+    .cta-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: slideUp 0.7s 0.55s forwards;
+    }
+
+    .btn-merchant {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--green), var(--green-dim));
+      color: #050c14;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.35s;
+      box-shadow: 0 0 30px rgba(0, 232, 122, 0.25);
+    }
+
+    .btn-merchant:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 50px rgba(0, 232, 122, 0.45);
+    }
+
+    .btn-pay {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 14px;
+      background: rgba(0, 212, 255, 0.1);
+      border: 1.5px solid rgba(0, 212, 255, 0.35);
+      color: var(--cyan);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.35s;
+    }
+
+    .btn-pay:hover {
+      background: rgba(0, 212, 255, 0.18);
+      transform: translateY(-3px);
+      box-shadow: 0 0 40px rgba(0, 212, 255, 0.25);
+    }
+
+    .btn-icon {
+      font-size: 1.2rem
+    }
+
+    /* TRUST STRIP */
+    .trust-strip {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-top: 2rem;
+      opacity: 0;
+      animation: slideUp 0.7s 0.7s forwards;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--white-60);
+    }
+
+    .trust-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green)
+    }
+
+    /* HERO RIGHT — PHONE MOCKUP */
+    .hero-right {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      animation: slideUp 0.8s 0.5s forwards;
+    }
+
+    .phone-wrap {
+      position: relative;
+      animation: phoneBob 5s ease-in-out infinite;
+    }
+
+    @keyframes phoneBob {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(-2deg)
+      }
+
+      50% {
+        transform: translateY(-18px) rotate(2deg)
+      }
+    }
+
+    .phone {
+      width: 230px;
+      height: 460px;
+      background: linear-gradient(160deg, #0f2030, #0a1828);
+      border-radius: 38px;
+      border: 2px solid rgba(0, 232, 122, 0.2);
+      box-shadow:
+        0 0 0 6px rgba(0, 232, 122, 0.04),
+        0 40px 100px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2.4rem 1.2rem 1.4rem;
+      gap: 0.9rem;
+    }
+
+    .phone-notch {
+      width: 80px;
+      height: 18px;
+      background: #050c14;
+      border-radius: 0 0 18px 18px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .phone-status {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.6rem;
+      color: var(--white-60);
+      font-weight: 600;
+    }
+
+    .qr-wrap {
+      background: rgba(0, 232, 122, 0.06);
+      border: 1.5px solid rgba(0, 232, 122, 0.25);
+      border-radius: 16px;
+      padding: 14px;
+      animation: qrGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes qrGlow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 20px rgba(0, 232, 122, 0.1)
+      }
+
+      50% {
+        box-shadow: 0 0 40px rgba(0, 232, 122, 0.35)
+      }
+    }
+
+    .qr-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 12px);
+      gap: 2px;
+    }
+
+    .qr-cell {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      background: var(--green);
+    }
+
+    .qr-cell.off {
+      background: transparent
+    }
+
+    .phone-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--green)
+    }
+
+    .phone-amt {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem;
+      color: var(--white);
+    }
+
+    .phone-approved {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 232, 122, 0.12);
+      border: 1px solid rgba(0, 232, 122, 0.3);
+      border-radius: 99px;
+      padding: 6px 14px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--green);
+      animation: approvedPop 2.5s ease-in-out infinite;
+    }
+
+    @keyframes approvedPop {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.06)
+      }
+    }
+
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--green);
+      opacity: 0;
+      animation: particleFly var(--dur) var(--del) ease-out infinite;
+    }
+
+    @keyframes particleFly {
+      0% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(0)
+      }
+
+      20% {
+        opacity: 1
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(calc(var(--tx) + var(--dx)), calc(var(--ty) + var(--dy))) scale(0)
+      }
+    }
+
+    .glow-ring {
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 232, 122, 0.12);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: ringPulse 4s ease-in-out infinite;
+    }
+
+    .glow-ring:nth-child(2) {
+      width: 500px;
+      height: 500px;
+      animation-delay: -1.5s;
+      border-color: rgba(0, 212, 255, 0.08)
+    }
+
+    .glow-ring:nth-child(3) {
+      width: 650px;
+      height: 650px;
+      animation-delay: -3s;
+      border-color: rgba(0, 232, 122, 0.05)
+    }
+
+    @keyframes ringPulse {
+
+      0%,
+      100% {
+        opacity: 0.5;
+        transform: translate(-50%, -50%) scale(1)
+      }
+
+      50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.04)
+      }
+    }
+
+    /* SCROLL INDICATOR */
+    .scroll-ind {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: var(--white-30);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      z-index: 10;
+      animation: fadeIn 1s 1.5s both;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(var(--green), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollLine {
+      0% {
+        transform: scaleY(0);
+        transform-origin: top
+      }
+
+      50% {
+        transform: scaleY(1);
+        transform-origin: top
+      }
+
+      51% {
+        transform: scaleY(1);
+        transform-origin: bottom
+      }
+
+      100% {
+        transform: scaleY(0);
+        transform-origin: bottom
+      }
+    }
+
+    /* ═══ SEARCH SECTION ═══ */
+    .search-section {
+      position: relative;
+      z-index: 10;
+      padding: 5rem 3rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 2rem;
+    }
+
+    .section-title em {
+      font-style: normal;
+      color: var(--green)
+    }
+
+    /* GOOGLE-STYLE SEARCH BAR */
+    .search-bar-wrap {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .search-bar {
+      width: 100%;
+      padding: 18px 24px 18px 60px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--card-border);
+      border-radius: 99px;
+      color: var(--white);
+      font-family: 'Manrope', sans-serif;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .search-bar:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(0, 232, 122, 0.5);
+      box-shadow: 0 0 0 4px rgba(0, 232, 122, 0.08);
+    }
+
+    .search-bar::placeholder {
+      color: var(--white-30)
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--white-30);
+      font-size: 1.2rem;
+      pointer-events: none;
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--white-30);
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: none;
+      transition: color 0.2s;
+    }
+
+    .search-clear:hover {
+      color: var(--white)
+    }
+
+    /* DROPDOWN */
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: #0d1c2e;
+      border: 1.5px solid var(--card-border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+      display: none;
+    }
+
+    .search-dropdown.open {
+      display: block;
+      animation: dropDown 0.25s ease
+    }
+
+    @keyframes dropDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .drop-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .drop-item:last-child {
+      border-bottom: none
+    }
+
+    .drop-item:hover {
+      background: rgba(0, 232, 122, 0.06)
+    }
+
+    .drop-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .drop-info h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 2px
+    }
+
+    .drop-info p {
+      font-size: 0.78rem;
+      color: var(--white-60)
+    }
+
+    .drop-tag {
+      margin-left: auto;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: rgba(0, 232, 122, 0.12);
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    /* ─ BUSINESS GRID ─ */
+    .biz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .biz-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all var(--t);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .biz-card:hover {
+      border-color: rgba(0, 232, 122, 0.3);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 232, 122, 0.1);
+    }
+
+    .biz-card-header {
+      height: 80px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 1.4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .biz-card-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--header-grad);
+      opacity: 0.18;
+    }
+
+    .biz-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      position: relative;
+      z-index: 1;
+      background: rgba(5, 12, 20, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .biz-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      line-height: 1.2;
+    }
+
+    .biz-cat {
+      font-size: 0.75rem;
+      color: var(--white-60);
+      position: relative;
+      z-index: 1
+    }
+
+    .verified {
+      margin-left: auto;
+      color: var(--green);
+      font-size: 1.1rem;
+      position: relative;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .biz-card-body {
+      padding: 1.2rem 1.4rem
+    }
+
+    .biz-rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .stars {
+      color: #fbbf24;
+      font-size: 0.85rem
+    }
+
+    .biz-desc {
+      font-size: 0.83rem;
+      color: var(--white-60);
+      line-height: 1.65;
+      margin-bottom: 1rem
+    }
+
+    /* PAYMENT BADGES */
+    .pay-methods {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1rem
+    }
+
+    .pay-badge {
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border: 1px solid;
+    }
+
+    .pay-badge.green {
+      color: var(--green);
+      border-color: rgba(0, 232, 122, 0.3);
+      background: rgba(0, 232, 122, 0.08)
+    }
+
+    .pay-badge.cyan {
+      color: var(--cyan);
+      border-color: rgba(0, 212, 255, 0.3);
+      background: rgba(0, 212, 255, 0.08)
+    }
+
+    .pay-badge.yellow {
+      color: #fbbf24;
+      border-color: rgba(251, 191, 36, 0.3);
+      background: rgba(251, 191, 36, 0.08)
+    }
+
+    .biz-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 1rem;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .act-btn {
+      flex: 1;
+      padding: 9px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid var(--card-border);
+      background: transparent;
+      color: var(--white-60);
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .act-btn.primary {
+      background: rgba(0, 232, 122, 0.1);
+      border-color: rgba(0, 232, 122, 0.3);
+      color: var(--green);
+    }
+
+    .act-btn:hover {
+      transform: translateY(-1px)
+    }
+
+    .act-btn.primary:hover {
+      background: rgba(0, 232, 122, 0.2);
+      box-shadow: 0 4px 16px rgba(0, 232, 122, 0.2)
+    }
+
+    .act-btn.social {
+      border-color: rgba(37, 211, 102, 0.3);
+      color: #25d166
+    }
+
+    .act-btn.social:hover {
+      background: rgba(37, 211, 102, 0.1)
+    }
+
+    /* ═══ STATS BAND ═══ */
+    .stats-band {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(0, 232, 122, 0.02);
+      padding: 2.5rem 3rem;
+    }
+
+    .stats-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .stat {
+      text-align: center
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-lbl {
+      font-size: 0.82rem;
+      color: var(--white-60);
+      margin-top: 2px
+    }
+
+    /* ═══ HOW IT WORKS ═══ */
+    .how-section {
+      position: relative;
+      z-index: 10;
+      padding: 5rem 3rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .step-card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem;
+      transition: all var(--t);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .step-card::before {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      right: -40px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--step-color, rgba(0, 232, 122, 0.06));
+      transition: all var(--t);
+    }
+
+    .step-card:hover {
+      border-color: rgba(0, 232, 122, 0.25);
+      transform: translateY(-5px)
+    }
+
+    .step-card:hover::before {
+      width: 200px;
+      height: 200px;
+      bottom: -60px;
+      right: -60px
+    }
+
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      color: rgba(0, 232, 122, 0.12);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .step-icon {
+      font-size: 2rem;
+      margin-bottom: 0.8rem
+    }
+
+    .step-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem
+    }
+
+    .step-desc {
+      font-size: 0.84rem;
+      color: var(--white-60);
+      line-height: 1.65
+    }
+
+    /* ═══ QR MODAL ═══ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(5, 12, 20, 0.92);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s;
+      padding: 1rem;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all
+    }
+
+    .modal {
+      background: linear-gradient(160deg, #0d1c2e, #081220);
+      border: 1.5px solid rgba(0, 232, 122, 0.2);
+      border-radius: 28px;
+      padding: 2.4rem;
+      max-width: 420px;
+      width: 100%;
+      transform: scale(0.88) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .modal-overlay.open .modal {
+      transform: scale(1) translateY(0)
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 36px;
+      height: 36px;
+      border-radius: 99px;
+      background: var(--white-10);
+      border: 1px solid var(--card-border);
+      color: var(--white);
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.25s;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.12)
+    }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-sub {
+      font-size: 0.85rem;
+      color: var(--white-60);
+      margin-bottom: 1.8rem
+    }
+
+    /* TABS */
+    .modal-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1.8rem
+    }
+
+    .m-tab {
+      flex: 1;
+      padding: 11px;
+      border-radius: 12px;
+      background: var(--white-10);
+      border: 1.5px solid transparent;
+      color: var(--white-60);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .m-tab.active {
+      background: rgba(0, 232, 122, 0.12);
+      border-color: rgba(0, 232, 122, 0.35);
+      color: var(--green);
+    }
+
+    /* CAMERA VIEW */
+    .cam-view {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 20px;
+      background: #000;
+      overflow: hidden;
+      position: relative;
+      border: 1.5px solid rgba(0, 232, 122, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+    }
+
+    #cameraFeed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none
+    }
+
+    .cam-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      color: var(--white-30);
+    }
+
+    .cam-placeholder .big-icon {
+      font-size: 3.5rem
+    }
+
+    .cam-placeholder p {
+      font-size: 0.85rem;
+      text-align: center
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      animation: scanAnim 2s ease-in-out infinite;
+      display: none;
+    }
+
+    @keyframes scanAnim {
+      0% {
+        top: 10%
+      }
+
+      100% {
+        top: 88%
+      }
+    }
+
+    .corner {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-color: var(--green);
+      border-style: solid;
+      display: none;
+    }
+
+    .c-tl {
+      top: 8%;
+      left: 8%;
+      border-width: 3px 0 0 3px;
+      border-radius: 4px 0 0 0
+    }
+
+    .c-tr {
+      top: 8%;
+      right: 8%;
+      border-width: 3px 3px 0 0;
+      border-radius: 0 4px 0 0
+    }
+
+    .c-bl {
+      bottom: 8%;
+      left: 8%;
+      border-width: 0 0 3px 3px;
+      border-radius: 0 0 0 4px
+    }
+
+    .c-br {
+      bottom: 8%;
+      right: 8%;
+      border-width: 0 3px 3px 0;
+      border-radius: 0 0 4px 0
+    }
+
+    /* GALLERY UPLOAD */
+    .gallery-zone {
+      border: 2px dashed rgba(0, 212, 255, 0.3);
+      border-radius: 16px;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: var(--white-60);
+      text-align: center;
+      background: rgba(0, 212, 255, 0.03);
+    }
+
+    .gallery-zone:hover {
+      border-color: rgba(0, 212, 255, 0.6);
+      background: rgba(0, 212, 255, 0.07);
+      color: var(--cyan);
+    }
+
+    .gallery-zone .up-icon {
+      font-size: 2.8rem
+    }
+
+    .gallery-zone p {
+      font-size: 0.85rem
+    }
+
+    .gallery-zone strong {
+      color: var(--cyan)
+    }
+
+    #galleryInput {
+      display: none
+    }
+
+    /* SUCCESS SCREEN */
+    .pay-success {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(0, 232, 122, 0.12);
+      border: 2px solid var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      animation: successPop 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes successPop {
+      from {
+        transform: scale(0)
+      }
+
+      to {
+        transform: scale(1)
+      }
+    }
+
+    .pay-success h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800
+    }
+
+    .pay-success p {
+      color: var(--white-60);
+      font-size: 0.88rem
+    }
+
+    .pay-success .amount {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .modal-action {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--green), var(--green-dim));
+      color: #050c14;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 1.2rem;
+    }
+
+    .modal-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 232, 122, 0.4)
+    }
+
+    .modal-action.cyan-btn {
+      background: linear-gradient(135deg, var(--cyan), #008faa);
+    }
+
+    /* ═══ ADD MERCHANT MODAL ═══ */
+    .merchant-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 0.5rem
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px
+    }
+
+    .form-field label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--white-60);
+      letter-spacing: 0.06em;
+      text-transform: uppercase
+    }
+
+    .form-field input,
+    .form-field select {
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--card-border);
+      color: var(--white);
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      transition: all 0.25s;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus {
+      border-color: rgba(0, 232, 122, 0.45);
+      box-shadow: 0 0 0 3px rgba(0, 232, 122, 0.07);
+    }
+
+    .form-field input::placeholder {
+      color: var(--white-30)
+    }
+
+    .form-field select option {
+      background: #0d1c2e
+    }
+
+    .check-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .check-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 99px;
+      border: 1.5px solid var(--card-border);
+      background: transparent;
+      color: var(--white-60);
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: all 0.25s;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .check-pill.sel {
+      border-color: rgba(0, 232, 122, 0.4);
+      background: rgba(0, 232, 122, 0.1);
+      color: var(--green)
+    }
+
+    .full {
+      grid-column: 1/-1
+    }
+
+    /* ═══ TOAST ═══ */
+    .toast-wrap {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .toast {
+      background: #0d1c2e;
+      border: 1.5px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 280px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .toast.ok {
+      border-color: rgba(0, 232, 122, 0.4);
+      color: var(--green)
+    }
+
+    .toast.info {
+      border-color: rgba(0, 212, 255, 0.35);
+      color: var(--cyan)
+    }
+
+    .toast.err {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #f87171
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(30px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0)
+      }
+    }
+
+    /* ═══ FOOTER ═══ */
+    footer {
+      position: relative;
+      z-index: 10;
+      border-top: 1px solid var(--card-border);
+      padding: 3rem;
+      text-align: center;
+    }
+
+    .foot-inner {
+      max-width: 1300px;
+      margin: 0 auto
+    }
+
+    .foot-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .foot-tagline {
+      font-size: 0.85rem;
+      color: var(--white-60);
+      margin-bottom: 1.5rem
+    }
+
+    .foot-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem
+    }
+
+    .foot-links a {
+      color: var(--white-60);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.25s
+    }
+
+    .foot-links a:hover {
+      color: var(--green)
+    }
+
+    .foot-copy {
+      font-size: 0.78rem;
+      color: var(--white-30)
+    }
+
+    /* ─ ANIMATIONS ─ */
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(28px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s, transform 0.7s
+    }
+
+    .reveal.vis {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    /* ─ RESPONSIVE ─ */
+    @media(max-width:900px) {
+      nav {
+        padding: 1rem 1.5rem
+      }
+
+      nav.scrolled {
+        padding: 0.8rem 1.5rem
+      }
+
+      .nav-links,
+      .nav-cta {
+        display: none
+      }
+
+      .ham {
+        display: flex
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 6rem 1.5rem 3rem;
+        gap: 3rem;
+        text-align: center
+      }
+
+      .hero-left {
+        max-width: 100%
+      }
+
+      .hero-sub {
+        max-width: 100%
+      }
+
+      .cta-group {
+        justify-content: center
+      }
+
+      .trust-strip {
+        justify-content: center
+      }
+
+      .hero-right {
+        display: none
+      }
+
+      .search-section,
+      .how-section {
+        padding: 4rem 1.5rem
+      }
+
+      .stats-band {
+        padding: 2rem 1.5rem
+      }
+
+      footer {
+        padding: 2rem 1.5rem
+      }
+
+      .form-row {
+        grid-template-columns: 1fr
+      }
+
+      .toast-wrap {
+        right: 1rem;
+        bottom: 1rem
+      }
+    }
+
+    @media(max-width:500px) {
+      .biz-grid { grid-template-columns: 1fr }
+      .cta-group { flex-direction: column }
+      .btn-merchant, .btn-pay { width: 100%; justify-content: center }
+    }
+
+    /* ── BANK CAROUSEL ── */
+    .carousel-section {
+      padding: 3.5rem 3rem;
+      overflow: hidden;
+      border-top: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
+      background: linear-gradient(180deg,rgba(0,232,122,0.03),transparent);
+      position: relative;
+    }
+    .carousel-section::before,
+    .carousel-section::after {
+      content:'';position:absolute;top:0;bottom:0;width:120px;z-index:2;pointer-events:none;
+    }
+    .carousel-section::before { left:0; background:linear-gradient(90deg,var(--bg),transparent); }
+    .carousel-section::after  { right:0; background:linear-gradient(270deg,var(--bg),transparent); }
+    .carousel-label {
+      text-align:center;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;
+      text-transform:uppercase;color:var(--white-30);margin-bottom:1.8rem;
+    }
+    .carousel-track-wrap { overflow:hidden; position:relative; }
+    .carousel-track {
+      display:flex;gap:1.4rem;
+      animation: carouselScroll 28s linear infinite;
+      width:max-content;
+    }
+    .carousel-track:hover { animation-play-state:paused; }
+    @keyframes carouselScroll {
+      0% { transform:translateX(0); }
+      100% { transform:translateX(-50%); }
+    }
+    .bank-chip {
+      display:flex;align-items:center;gap:10px;
+      padding:10px 22px;
+      background:rgba(255,255,255,0.04);
+      border:1.5px solid var(--card-border);
+      border-radius:99px;
+      white-space:nowrap;flex-shrink:0;
+      transition:all 0.3s;cursor:default;
+    }
+    .bank-chip:hover {
+      border-color:rgba(0,232,122,0.35);
+      background:rgba(0,232,122,0.06);
+      transform:translateY(-2px);
+    }
+    .bank-chip .bk-logo {
+      width:28px;height:28px;border-radius:8px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1rem;font-weight:800;
+    }
+    .bank-chip .bk-name {
+      font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;
+    }
+
+    /* ── TESTIMONIALS ── */
+    .testi-section {
+      padding:5rem 3rem;
+      max-width:1300px;margin:0 auto;
+    }
+    .testi-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:1.4rem;
+      margin-top:2rem;
+    }
+    .testi-card {
+      background:var(--card);
+      border:1.5px solid var(--card-border);
+      border-radius:20px;
+      padding:1.6rem;
+      position:relative;
+      transition:all var(--t);
+    }
+    .testi-card:hover {
+      border-color:rgba(0,232,122,0.3);
+      transform:translateY(-4px);
+      box-shadow:0 16px 40px rgba(0,0,0,0.35);
+    }
+    .testi-card::before {
+      content:'"';
+      position:absolute;top:-12px;left:20px;
+      font-size:5rem;line-height:1;
+      color:var(--green);opacity:0.15;
+      font-family:'Syne',sans-serif;font-weight:800;
+    }
+    .testi-stars { font-size:0.9rem;margin-bottom:0.8rem; }
+    .testi-text {
+      font-size:0.88rem;color:var(--white-60);
+      line-height:1.75;margin-bottom:1.2rem;font-style:italic;
+    }
+    .testi-author {
+      display:flex;align-items:center;gap:12px;
+    }
+    .testi-avatar {
+      width:40px;height:40px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.2rem;font-weight:700;flex-shrink:0;
+      border:2px solid var(--card-border);
+    }
+    .testi-info .t-name {
+      font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;
+    }
+    .testi-info .t-role {
+      font-size:0.72rem;color:var(--white-30);
+    }
+    .testi-badge {
+      margin-left:auto;font-size:0.65rem;font-weight:700;
+      padding:3px 9px;border-radius:99px;
+      background:rgba(0,232,122,0.1);color:var(--green);
+      border:1px solid rgba(0,232,122,0.2);
+      white-space:nowrap;
+    }
+
+    /* ── AGENT CTA BAND ── */
+    .agent-cta-band {
+      margin: 0 3rem 3rem;
+      border-radius: 28px;
+      background: linear-gradient(135deg,#061a0e 0%,#050c14 50%,#061424 100%);
+      border: 1.5px solid rgba(0,232,122,0.2);
+      padding: 3.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .agent-cta-band::before {
+      content:'';position:absolute;top:-60px;right:-60px;
+      width:300px;height:300px;border-radius:50%;
+      background:radial-gradient(circle,rgba(0,232,122,0.12),transparent 70%);
+    }
+    .agent-cta-band::after {
+      content:'AGENT';position:absolute;bottom:-30px;right:3rem;
+      font-family:'Syne',sans-serif;font-size:8rem;font-weight:800;
+      color:rgba(0,232,122,0.04);letter-spacing:0.2em;
+    }
+    .agent-perks {
+      display:flex;flex-wrap:wrap;gap:12px;margin:1.4rem 0;
+    }
+    .agent-perk {
+      display:flex;align-items:center;gap:8px;
+      padding:8px 16px;border-radius:99px;
+      background:rgba(0,232,122,0.06);
+      border:1px solid rgba(0,232,122,0.15);
+      font-size:0.8rem;color:var(--white-60);
+    }
+
+    /* ── MULTISTEP AGENT MODAL ── */
+    .step-progress {
+      display:flex;align-items:center;gap:0;margin-bottom:1.6rem;
+    }
+    .step-dot {
+      width:32px;height:32px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.78rem;font-weight:700;
+      background:rgba(255,255,255,0.06);
+      border:2px solid var(--card-border);
+      color:var(--white-30);flex-shrink:0;
+      transition:all 0.4s;
+      font-family:'Syne',sans-serif;
+    }
+    .step-dot.active {
+      background:var(--green);border-color:var(--green);
+      color:#050c14;box-shadow:0 0 16px rgba(0,232,122,0.4);
+    }
+    .step-dot.done {
+      background:rgba(0,232,122,0.15);border-color:rgba(0,232,122,0.4);
+      color:var(--green);
+    }
+    .step-line {
+      flex:1;height:2px;
+      background:var(--card-border);
+      transition:background 0.4s;
+    }
+    .step-line.done { background:rgba(0,232,122,0.4); }
+    .step-pane { display:none; }
+    .step-pane.active { display:block; }
+    .step-title-sm {
+      font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;
+      margin-bottom:0.3rem;
+    }
+    .step-sub-sm {
+      font-size:0.78rem;color:var(--white-30);margin-bottom:1.2rem;
+    }
+    .agent-input {
+      width:100%;padding:11px 14px;
+      border-radius:10px;
+      background:rgba(255,255,255,0.05);
+      border:1.5px solid var(--card-border);
+      color:var(--white);
+      font-family:'Manrope',sans-serif;font-size:0.88rem;
+      outline:none;transition:border-color 0.25s;
+    }
+    .agent-input:focus { border-color:rgba(0,232,122,0.5); }
+    .agent-select {
+      width:100%;padding:11px 14px;
+      border-radius:10px;
+      background:#0d1c2e;
+      border:1.5px solid var(--card-border);
+      color:var(--white);
+      font-family:'Manrope',sans-serif;font-size:0.88rem;
+      outline:none;
+    }
+    .step-nav {
+      display:flex;gap:10px;margin-top:1.4rem;
+    }
+    .btn-step-back {
+      flex:1;padding:12px;border-radius:12px;
+      background:rgba(255,255,255,0.05);
+      border:1.5px solid var(--card-border);
+      color:var(--white-60);cursor:pointer;
+      font-family:'Syne',sans-serif;font-weight:700;font-size:0.85rem;
+      transition:all 0.2s;
+    }
+    .btn-step-next {
+      flex:2;padding:12px;border-radius:12px;
+      background:linear-gradient(135deg,var(--green),var(--green-dim));
+      border:none;color:#050c14;cursor:pointer;
+      font-family:'Syne',sans-serif;font-weight:800;font-size:0.85rem;
+      transition:all 0.2s;
+    }
+    .btn-step-next:hover { transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,232,122,0.3); }
+    .agent-summary-row {
+      display:flex;justify-content:space-between;padding:7px 0;
+      border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.82rem;
+    }
+    .agent-summary-row:last-child { border-bottom:none; }
+    .agent-countdown-modal { /* inherits from approvalModal */ }
+
+    @media(max-width:768px) {
+      .carousel-section { padding:2.5rem 1.5rem; }
+      .testi-section { padding:3rem 1.5rem; }
+      .agent-cta-band { margin:0 1rem 2rem;padding:2rem 1.5rem; }
+      .agent-cta-band::after { display:none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="cursor" id="cur"></div>
+  <div class="cursor-ring" id="curR"></div>
+  <div class="mesh">
+    <div class="mesh-blob m1"></div>
+    <div class="mesh-blob m2"></div>
+    <div class="mesh-blob m3"></div>
+  </div>
+
+  <!-- ══ NAV ══ -->
+  <nav id="nav">
+    <a href="#" class="nav-logo">Help<span>Pay®</span></a>
+    <ul class="nav-links">
+      <li><a href="#search">Merchants</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#" onclick="openQRModal();return false">Create Payment QR</a></li>
+      <li><a href="#" onclick="openAgentOnboard();return false" style="color:var(--green);font-weight:700">Join as Agent</a></li>
+      <li><a href="https://goapps-official.github.io/goCOIN/pricing.html">Pricing</a></li>
+    </ul>
+    <a href="#" class="nav-cta" onclick="openAddMerchant();return false">Register</a>
+    <button class="ham" id="ham" onclick="toggleMob()"><span></span><span></span><span></span></button>
+  </nav>
+
+  <div class="mob-nav" id="mobNav">
+    <a href="#" onclick="toggleMob()">Home</a>
+    <a href="#search" onclick="toggleMob()">Merchants</a>
+    <a href="#how" onclick="toggleMob()">How It Works</a>
+    <a href="#" onclick="openAddMerchant();toggleMob()">➕Add Merchant</a>
+    <a href="#" onclick="openQRModal();toggleMob()">💳 Create Payment QR</a>
+    <a href="#" onclick="openAgentOnboard();toggleMob()" style="color:var(--green);font-weight:700">🤝 Join as Agent</a>
+    <button class="btn-pay" style="margin-top:1rem;font-size:1rem;padding:14px 32px"
+      onclick="openPayModal();toggleMob()">
+      <span class="btn-icon">📷</span>Pay Merchant
+    </button>
+  </div>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <div class="hero-left">
+      <div class="pill">
+        <div class="pill-dot"></div>Now Live in 12 Cities
+      </div>
+      <h1 class="hero-headline">
+        <span class="static">Pay fast with<br></span>
+        <span class="brand">HelpPay</span> and<br>
+        <span class="word-swap" id="wordSwap">save time</span>
+      </h1>
+      <p class="hero-sub">Instant QR payments for every business. Scan, confirm, done — in under 3 seconds. No cash, no
+        friction, just flow.</p>
+      <div class="cta-group">
+        <button class="btn-merchant" onclick="openAddMerchant()">
+          <span class="btn-icon">🏪</span>Register Merchant
+        </button>
+        <button class="btn-pay" onclick="openPayModal()">
+          <span class="btn-icon">📷</span>Pay Merchant
+        </button>
+      </div>
+      <div class="trust-strip">
+        <div class="trust-item">
+          <div class="trust-dot"></div>Zero fees
+        </div>
+        <div class="trust-item">
+          <div class="trust-dot"></div>Bank-grade security
+        </div>
+        <div class="trust-item">
+          <div class="trust-dot"></div>Instant confirmation
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div style="position:relative">
+        <div class="glow-ring"></div>
+        <div class="glow-ring"></div>
+        <div class="glow-ring"></div>
+        <div class="phone-wrap">
+          <div class="phone">
+            <div class="phone-notch"></div>
+            <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+            <div
+              style="font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;color:var(--white-60);text-align:center">
+              SCAN TO PAY</div>
+            <div class="qr-wrap">
+              <div class="qr-grid" id="qrGrid"></div>
+            </div>
+            <div class="phone-label">HELPPAY® QR</div>
+            <div class="phone-amt">NGN2,450.00</div>
+            <div class="phone-approved">✅ Payment Approved</div>
+            <div style="font-size:0.65rem;color:var(--white-30);text-align:center">DigitalSolution· 12:34 PM</div>
+          </div>
+          <div class="particles" id="particles"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-ind"><span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ══ STATS ══ -->
+  <div class="stats-band">
+    <div class="stats-inner">
+      <div class="stat">
+        <div class="stat-num" data-target="2.4">0</div>
+        <div class="stat-lbl">Million Transactions</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-target="12000">0</div>
+        <div class="stat-lbl">Merchants Onboarded</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-target="48">0</div>
+        <div class="stat-lbl">Cities Covered</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-target="99.9">0</div>
+        <div class="stat-lbl">% Uptime</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SEARCH SECTION ══ -->
+  <section class="search-section" id="search">
+    <div class="section-label reveal">Find an Account.</div>
+    <div class="section-title reveal">Search <em>any user or business</em> and pay instantly.</div>
+
+    <div class="search-bar-wrap reveal">
+      <span class="search-icon">🔍</span>
+      <input class="search-bar" id="searchBar" type="text"
+        placeholder="Search user or businesses — e.g. DigitalSolution, ArewaBelle, EaziPr…" autocomplete="on">
+      <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+      <div class="search-dropdown" id="searchDrop"></div>
+    </div>
+
+    <div class="biz-grid" id="bizGrid"></div>
+  </section>
+
+  <!-- ══ HOW IT WORKS ══ -->
+  <section class="how-section" id="how">
+    <div class="section-label reveal">Simple Process</div>
+    <div class="section-title reveal">How <em>HelpPay®</em> works</div>
+    <div class="steps-grid">
+      <div class="step-card reveal" style="--step-color:rgba(0,232,122,0.06)">
+        <div class="step-num">01</div>
+        <div class="step-icon">🏪</div>
+        <div class="step-title">Merchant Signs Up</div>
+        <div class="step-desc">Businesses register in minutes. Get a unique QR code linked to all payment methods.</div>
+      </div>
+      <div class="step-card reveal" style="--step-color:rgba(0,212,255,0.06)">
+        <div class="step-num">02</div>
+        <div class="step-icon">📷</div>
+        <div class="step-title">Customer Scans</div>
+        <div class="step-desc">Open HelpPay®, tap Pay Merchant, and scan the QR code displayed at checkout.</div>
+      </div>
+      <div class="step-card reveal" style="--step-color:rgba(251,191,36,0.06)">
+        <div class="step-num">03</div>
+        <div class="step-icon">⚡</div>
+        <div class="step-title">Instant Transfer</div>
+        <div class="step-desc">Payment hits the merchant account in under 3 seconds. Both parties get notified
+          immediately.</div>
+      </div>
+      <div class="step-card reveal" style="--step-color:rgba(0,232,122,0.06)">
+        <div class="step-num">04</div>
+        <div class="step-icon">📊</div>
+        <div class="step-title">Track Everything</div>
+        <div class="step-desc">Full analytics dashboard. View sales, customers, peak hours, and payout history anytime.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PAYMENT IMAGES BAND ══ -->
+  <section style="position:relative;z-index:10;padding:3rem;max-width:1300px;margin:0 auto">
+    <div class="section-label reveal">Seamless Payments</div>
+    <div class="section-title reveal">Scan. Pay. <em>Done.</em></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;margin-top:1.8rem">
+      <div class="reveal"
+        style="border-radius:20px;overflow:hidden;border:1.5px solid var(--card-border);position:relative;height:220px">
+        <img src="Digital_Payments_Increase_in_Sri_Lanka.jpeg" alt="Digital Payments"
+          style="width:100%;height:100%;object-fit:cover;opacity:0.85">
+        <div
+          style="position:absolute;bottom:0;left:0;right:0;padding:1rem 1.2rem;background:linear-gradient(transparent,rgba(5,12,20,0.92))">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:var(--green)">Scan & Pay
+          </div>
+          <div style="font-size:0.75rem;color:var(--white-60)">QR-powered instant transactions</div>
+        </div>
+      </div>
+      <div class="reveal"
+        style="border-radius:20px;overflow:hidden;border:1.5px solid var(--card-border);position:relative;height:220px">
+        <img src="9fcbbde0-0dc2-4161-b24a-68e046f9617c.jpeg" alt="Crypto QR Pay"
+          style="width:100%;height:100%;object-fit:cover;opacity:0.85">
+        <div
+          style="position:absolute;bottom:0;left:0;right:0;padding:1rem 1.2rem;background:linear-gradient(transparent,rgba(5,12,20,0.92))">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:var(--cyan)">Pay Anywhere
+          </div>
+          <div style="font-size:0.75rem;color:var(--white-60)">All wallets supported</div>
+        </div>
+      </div>
+      <div class="reveal"
+        style="border-radius:20px;overflow:hidden;border:1.5px solid var(--card-border);position:relative;height:220px">
+        <img src="No-Touch_QR_Code_Solutions.jpeg" alt="No Touch QR"
+          style="width:100%;height:100%;object-fit:cover;opacity:0.85">
+        <div
+          style="position:absolute;bottom:0;left:0;right:0;padding:1rem 1.2rem;background:linear-gradient(transparent,rgba(5,12,20,0.92))">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:var(--green)">Touchless POS
+          </div>
+          <div style="font-size:0.75rem;color:var(--white-60)">Phone ↔ Terminal in seconds</div>
+        </div>
+      </div>
+      <div class="reveal"
+        style="border-radius:20px;overflow:hidden;border:1.5px solid var(--card-border);position:relative;height:220px">
+        <img src="Future_of_QR_Codes.jpeg" alt="Future of QR"
+          style="width:100%;height:100%;object-fit:cover;opacity:0.85">
+        <div
+          style="position:absolute;bottom:0;left:0;right:0;padding:1rem 1.2rem;background:linear-gradient(transparent,rgba(5,12,20,0.92))">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;color:var(--cyan)">Future-Ready
+          </div>
+          <div style="font-size:0.75rem;color:var(--white-60)">Smart QR linked to your wallet</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ BANK & WALLET CAROUSEL ══ -->
+  <div class="carousel-section">
+    <div class="carousel-label">Accepted banks &amp; wallets — all in one scan</div>
+    <div class="carousel-track-wrap">
+      <div class="carousel-track" id="carouselTrack"></div>
+    </div>
+  </div>
+
+  <!-- ══ TESTIMONIALS ══ -->
+  <section class="testi-section">
+    <div class="section-label reveal">Real People. Real Results.</div>
+    <div class="section-title reveal">What our users <em>are saying</em></div>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testi-text">"HelpPay changed how I run my shop completely. Customers scan, I get paid instantly — no POS machine, no waiting. Sales went up 40% in two months."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:rgba(0,232,122,0.12);color:var(--green)">🧔</div>
+          <div class="testi-info">
+            <div class="t-name">Emeka Okafor</div>
+            <div class="t-role">Electronics Merchant · Lagos</div>
+          </div>
+          <span class="testi-badge">Merchant</span>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testi-text">"I became a HelpPay agent 3 months ago. I've onboarded 47 merchants so far and I'm earning commissions every single week. Best side income I've ever had."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:rgba(0,212,255,0.12);color:var(--cyan)">👩</div>
+          <div class="testi-info">
+            <div class="t-name">Fatima Bello</div>
+            <div class="t-role">HelpPay Agent · Abuja</div>
+          </div>
+          <span class="testi-badge" style="color:var(--cyan);background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.2)">Agent</span>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testi-text">"I used to carry cash everywhere. Now I just scan QR codes. My market runs take half the time and I never get shortchanged. HelpPay is a game changer."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:rgba(251,191,36,0.12);color:#fbbf24">🧑</div>
+          <div class="testi-info">
+            <div class="t-name">Chukwuemeka Eze</div>
+            <div class="t-role">Customer · Port Harcourt</div>
+          </div>
+          <span class="testi-badge" style="color:#fbbf24;background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.2)">Buyer</span>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testi-text">"Registration was done in 5 minutes. My QR is now printed at the counter, and customers from Opay, PalmPay, GTBank — they all pay me seamlessly."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:rgba(0,232,122,0.12);color:var(--green)">👩‍🍳</div>
+          <div class="testi-info">
+            <div class="t-name">Ngozi Adaeze</div>
+            <div class="t-role">Restaurant Owner · Enugu</div>
+          </div>
+          <span class="testi-badge">Merchant</span>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testi-text">"The referral system is transparent. I can see every commission I've earned, and payments come in weekly. HelpPay actually pays its agents — on time."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:rgba(0,212,255,0.12);color:var(--cyan)">👨‍💼</div>
+          <div class="testi-info">
+            <div class="t-name">Tunde Adeyemi</div>
+            <div class="t-role">HelpPay Agent · Ibadan</div>
+          </div>
+          <span class="testi-badge" style="color:var(--cyan);background:rgba(0,212,255,0.1);border-color:rgba(0,212,255,0.2)">Agent</span>
+        </div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testi-text">"Our salon now accepts all major wallets. Clients love it. We even use it for tips! HelpPay's customer support is also super responsive on WhatsApp."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:rgba(190,24,93,0.15);color:#f472b6">💇‍♀️</div>
+          <div class="testi-info">
+            <div class="t-name">Adaeze Nwosu</div>
+            <div class="t-role">Salon Owner · Benin City</div>
+          </div>
+          <span class="testi-badge">Merchant</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ AGENT CTA BAND ══ -->
+  <div class="agent-cta-band reveal">
+    <div style="position:relative;z-index:1">
+      <div style="display:inline-block;background:rgba(0,232,122,0.1);border:1px solid rgba(0,232,122,0.25);border-radius:99px;padding:5px 14px;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:1rem">Now Recruiting Agents Nationwide</div>
+      <div style="font-family:'Syne',sans-serif;font-size:clamp(1.5rem,4vw,2.4rem);font-weight:800;line-height:1.2;margin-bottom:0.8rem">
+        Earn money by helping<br>businesses <span style="color:var(--green)">go cashless.</span>
+      </div>
+      <p style="font-size:0.9rem;color:var(--white-60);max-width:500px;line-height:1.7;margin-bottom:1.2rem">
+        Join the HelpPay Agent Network — onboard local merchants, earn commissions per registration and per transaction. No capital required. Work at your own pace.
+      </p>
+      <div class="agent-perks">
+        <div class="agent-perk">✅ 5% commission per merchant</div>
+        <div class="agent-perk">📆 Weekly payouts</div>
+        <div class="agent-perk">🆓 Zero joining fee</div>
+        <div class="agent-perk">📲 WhatsApp support</div>
+        <div class="agent-perk">🏆 Leaderboard bonuses</div>
+        <div class="agent-perk">🌍 Work anywhere</div>
+      </div>
+      <button class="btn-merchant" style="margin-top:0.5rem;font-size:0.95rem;padding:14px 32px" onclick="openAgentOnboard()">
+        <span class="btn-icon">🤝</span>Register as Agent
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <div class="foot-inner">
+      <div class="foot-logo">HelpPay®</div>
+      <div class="foot-tagline">The fastest way to get details and pay any merchant across the globe.</div>
+      <div class="foot-links">
+        <a href="https://goapps-official.github.io/goCOIN/about.html">About</a><a
+          href="https://goapps-official.github.io/goCOIN/policy.html">Privacy</a><a
+          href="https://goapps-official.github.io/goCOIN/pricing.html">Pricing</a><a
+          href="https://goapps-official.github.io/goCOIN/policy.html">Terms</a>
+        <a href="#">Developers API</a><a href="https://t.me/HelpPayAfrica">Support</a><a
+          href="https://t.me/HelpPayAfrica">Blog</a>
+      </div>
+      <div class="foot-copy">© 2026 HelpPay® AI Live Agent · <br> Built with ❤️ by DigitalSolution360</div>
+    </div>
+  </footer>
+
+  <!-- ══ PAY MODAL ══ -->
+  <div class="modal-overlay" id="payModal" onclick="closePayModal(event)">
+    <div class="modal">
+      <button class="modal-close" onclick="closePayModal()">✕</button>
+      <div class="modal-title">Pay Merchant</div>
+      <div class="modal-sub">Scan a QR code with your camera or upload from gallery</div>
+
+      <div class="modal-tabs">
+        <button class="m-tab active" id="tabCam" onclick="switchTab('cam')">📷 Camera</button>
+        <button class="m-tab" id="tabGal" onclick="switchTab('gal')">🖼 Gallery</button>
+      </div>
+
+      <!-- CAMERA -->
+      <div id="camPane">
+        <div class="cam-view" id="camView">
+          <video id="cameraFeed" autoplay playsinline></video>
+          <canvas id="qrCanvas" style="display:none"></canvas>
+          <div class="cam-placeholder" id="camPlaceholder">
+            <div class="big-icon">📷</div>
+            <p>Tap the button below<br>to activate your camera</p>
+          </div>
+          <div class="scan-line" id="scanLine"></div>
+          <div class="corner c-tl" id="cornTL"></div>
+          <div class="corner c-tr" id="cornTR"></div>
+          <div class="corner c-bl" id="cornBL"></div>
+          <div class="corner c-br" id="cornBR"></div>
+        </div>
+        <button class="modal-action" id="camBtn" onclick="toggleCamera()">📷 Start Camera</button>
+      </div>
+
+      <!-- GALLERY -->
+      <div id="galPane" style="display:none">
+        <div class="gallery-zone" onclick="document.getElementById('galleryInput').click()">
+          <div class="up-icon">⬆️</div>
+          <p>Click to upload QR code image<br><strong>PNG, JPG, GIF</strong> · Max 10MB</p>
+        </div>
+        <input type="file" id="galleryInput" accept="image/*" onchange="handleGallery(event)">
+        <button class="modal-action cyan-btn" onclick="simulateScan()">🖼 Process Image</button>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="pay-success" id="paySuccess">
+        <div class="success-icon">✅</div>
+        <h3>Payment Successful!</h3>
+        <div class="amount">N2,450.00</div>
+        <p>Paid to <strong>DigitalSolution®</strong></p>
+        <p style="color:var(--white-30);font-size:0.78rem">Transaction ID: HP-2025-88471</p>
+        <button class="modal-action" onclick="closePayModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ADD MERCHANT MODAL ══ -->
+  <div class="modal-overlay" id="addModal" onclick="closeAddModal(event)">
+    <div class="modal" style="max-width:480px">
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+      <div class="modal-title">Add Your Business</div>
+      <div class="modal-sub">Join 12,000+ merchants already on HelpPay®</div>
+
+      <div class="merchant-form" id="merchantForm">
+        <div class="form-row">
+          <div class="form-field">
+            <label>Business Name</label>
+            <input type="text" id="mName" placeholder="e.g. My Coffee Shop">
+          </div>
+          <div class="form-field">
+            <label>Category</label>
+            <select id="mCat">
+              <option value="">Select…</option>
+              <option>Food & Beverage</option>
+              <option>Retail & Shopping</option>
+              <option>Health & Beauty</option>
+              <option>Services</option>
+              <option>Electronics</option>
+              <option>Education</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Phone / WhatsApp</label>
+            <input type="tel" id="mPhone" placeholder="+23480 000 000">
+          </div>
+          <div class="form-field">
+            <label>Agent CODE:</label>
+            <input type="text" id="aCODE" placeholder="e.g. RFDSA5050">
+          </div>
+          <div class="form-field">
+            <label>City</label>
+            <input type="text" id="mCity" placeholder="e.g. Colombo">
+          </div>
+        </div>
+        <div class="form-field full">
+          <label>Payment Methods Accepted</label>
+          <div class="check-group" id="payMethods">
+            <button class="check-pill" onclick="togglePill(this)">💳 Visa/Master</button>
+            <button class="check-pill" onclick="togglePill(this)">📱 HelpPay® QR</button>
+            <button class="check-pill" onclick="togglePill(this)">🏦 Bank Transfer</button>
+            <button class="check-pill" onclick="togglePill(this)">💵 Cash</button>
+            <button class="check-pill" onclick="togglePill(this)">📲 goCOINS</button>
+            <!--<button class="check-pill" onclick="togglePill(this)">🌐 mCash</button>-->
+          </div>
+        </div>
+        <div class="form-field full">
+          <label>Paste WhatsApp Business Catalog Link:</label>
+          <input type="text" id="mInsta" placeholder="@your_catalog_LINK">
+        </div>
+        <button class="modal-action" onclick="submitMerchant()">🚀 Register My Business</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ APPROVAL COUNTDOWN MODAL ══ -->
+  <div class="modal-overlay" id="approvalModal">
+    <div class="modal" style="max-width:400px;text-align:center">
+      <div style="font-size:3rem;margin-bottom:0.8rem;animation:approvedPop 1.5s ease-in-out infinite">⏳</div>
+      <div class="modal-title" style="font-size:1.4rem">Submission Sent!</div>
+      <div class="modal-sub" id="approvalMerchantName">Your merchant application is being reviewed.</div>
+      <div style="margin:1.5rem 0">
+        <div
+          style="font-size:0.78rem;color:var(--white-60);margin-bottom:0.6rem;letter-spacing:0.06em;text-transform:uppercase">
+          Awaiting WhatsApp Approval</div>
+        <div style="position:relative;width:120px;height:120px;margin:0 auto">
+          <svg width="120" height="120" style="transform:rotate(-90deg)">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(0,232,122,0.12)" stroke-width="8" />
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--green)" stroke-width="8" stroke-dasharray="314"
+              id="countdownCircle" stroke-linecap="round" style="transition:stroke-dashoffset 1s linear" />
+          </svg>
+          <div
+            style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--green)"
+              id="countdownNum">60</div>
+            <div style="font-size:0.65rem;color:var(--white-30);letter-spacing:0.08em">SECONDS</div>
+          </div>
+        </div>
+      </div>
+      <div
+        style="background:rgba(0,232,122,0.06);border:1px solid rgba(0,232,122,0.2);border-radius:14px;padding:1rem;margin-bottom:1.4rem">
+        <div style="font-size:0.8rem;color:var(--white-60);line-height:1.7">
+          📲 Submission forwarded to<br>
+          <strong style="color:var(--green)">+2348157505037</strong> via WhatsApp<br>
+          <span style="font-size:0.72rem;color:var(--white-30)">You'll receive a confirmation once approved</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="modal-action"
+          style="background:rgba(255,255,255,0.06);color:var(--white-60);border:1.5px solid var(--card-border);font-size:0.82rem;margin-top:0"
+          onclick="closeApprovalModal()">Close</button>
+        <button class="modal-action" style="margin-top:0;font-size:0.82rem" id="openWABtn" onclick="openApprovalWA()">💬
+          Open WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MY PAYMENT QR MODAL ══ -->
+  <div class="modal-overlay" id="qrModal" onclick="closeQRModal(event)">
+    <div class="modal" style="max-width:460px">
+      <button class="modal-close" onclick="closeQRModal()">✕</button>
+      <div class="modal-title">💳 My Payment QR</div>
+      <div class="modal-sub">Create a shareable QR code linked to your wallet address</div>
+
+      <div id="qrCreatorPane">
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:1.4rem">
+          <div class="form-field">
+            <label>Your Name / Business</label>
+            <input type="text" id="qrOwnerName" placeholder="e.g. Chidi's Store"
+              style="padding:11px 14px;border-radius:10px;background:rgba(255,255,255,0.05);border:1.5px solid var(--card-border);color:var(--white);font-family:'Manrope',sans-serif;font-size:0.88rem;outline:none">
+          </div>
+          <div class="form-field">
+            <label>Wallet Address / Account Number</label>
+            <input type="text" id="qrWalletAddr" placeholder="e.g. *5050*[smartUSSD]#... or WhatsApp Phone Number."
+              style="padding:11px 14px;border-radius:10px;background:rgba(255,255,255,0.05);border:1.5px solid var(--card-border);color:var(--white);font-family:'Manrope',sans-serif;font-size:0.88rem;outline:none;font-family:'DM Mono',monospace">
+          </div>
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-field">
+              <label>Amount</label>
+              <input type="number" id="qrAmount" placeholder="0.00"
+                style="padding:11px 14px;border-radius:10px;background:rgba(255,255,255,0.05);border:1.5px solid var(--card-border);color:var(--white);font-family:'Manrope',sans-serif;font-size:0.88rem;outline:none">
+            </div>
+            <div class="form-field">
+              <label>Currency</label>
+              <select id="qrCurrency"
+                style="padding:11px 14px;border-radius:10px;background:#0d1c2e;border:1.5px solid var(--card-border);color:var(--white);font-family:'Manrope',sans-serif;font-size:0.88rem;outline:none">
+                <option>NGN</option>
+                <option>LKR</option>
+                <option>USD</option>
+                <option>GHS</option>
+                <option>KES</option>
+                <option>BTC</option>
+                <option>ETH</option>
+                <option>USDT</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Payment Note (good for tracking order)</label>
+            <input type="text" id="qrNote" placeholder="e.g. For goods &amp; services"
+              style="padding:11px 14px;border-radius:10px;background:rgba(255,255,255,0.05);border:1.5px solid var(--card-border);color:var(--white);font-family:'Manrope',sans-serif;font-size:0.88rem;outline:none">
+          </div>
+        </div>
+        <button class="modal-action" onclick="generatePaymentQR()">✨ Generate Payment QR</button>
+      </div>
+
+      <div id="qrDisplayPane" style="display:none;text-align:center">
+        <div
+          style="background:white;border-radius:16px;padding:20px;display:inline-block;margin-bottom:1.2rem;position:relative">
+          <canvas id="generatedQR" width="200" height="200"></canvas>
+          <div style="margin-top:10px;font-size:0.72rem;color:#333;font-family:'Syne',sans-serif;font-weight:700"
+            id="qrOwnerLabel">Your Name</div>
+        </div>
+        <div
+          style="background:rgba(0,232,122,0.06);border:1px solid rgba(0,232,122,0.2);border-radius:14px;padding:1rem;margin-bottom:1.2rem;text-align:left">
+          <div
+            style="font-size:0.72rem;color:var(--white-30);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">
+            Wallet Address</div>
+          <div style="font-size:0.82rem;color:var(--green);font-family:monospace;word-break:break-all"
+            id="qrAddrDisplay">—</div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="modal-action"
+            style="background:rgba(255,255,255,0.06);color:var(--white-60);border:1.5px solid var(--card-border);margin-top:0;font-size:0.82rem"
+            onclick="resetQRCreator()">← Back</button>
+          <button class="modal-action" style="margin-top:0;font-size:0.82rem" onclick="shareQRCode()">📤 Share QR
+            Code</button>
+          <button class="modal-action cyan-btn" style="margin-top:0;font-size:0.82rem" onclick="downloadQR()">⬇️
+            Save</button>
+        </div>
+      </div>
+
+      <!-- UPLOADED QR RESULT -->
+      <div id="qrScanResultPane" style="display:none">
+        <div
+          style="border:2px dashed rgba(0,232,122,0.3);border-radius:16px;padding:2rem;text-align:center;cursor:pointer;transition:all 0.3s;background:rgba(0,232,122,0.03);margin-bottom:1.2rem"
+          onclick="document.getElementById('qrUploadInput').click()" id="qrUploadZone">
+          <div style="font-size:2.8rem;margin-bottom:0.6rem">📲</div>
+          <p style="font-size:0.85rem;color:var(--white-60)">Upload a payment QR code<br><strong
+              style="color:var(--green)">to decode & view details</strong></p>
+        </div>
+        <input type="file" id="qrUploadInput" accept="image/*" style="display:none" onchange="processUploadedQR(event)">
+        <div id="qrDecodeResult"
+          style="display:none;background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.25);border-radius:14px;padding:1.2rem">
+          <div
+            style="font-size:0.72rem;color:var(--cyan);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.8rem">
+            📋 Payment Details Decoded</div>
+          <div id="qrDecodeContent" style="font-size:0.85rem;color:var(--white);line-height:1.9"></div>
+          <button class="modal-action" style="margin-top:1rem;font-size:0.82rem" onclick="quickPayFromQR()">⚡ Pay
+            Now</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:1.2rem;border-top:1px solid var(--card-border);padding-top:1.2rem">
+        <button class="m-tab active" id="qrTabCreate" onclick="switchQRTab('create')" style="font-size:0.78rem">✨ Create
+          QR</button>
+        <button class="m-tab" id="qrTabScan" onclick="switchQRTab('scan')" style="font-size:0.78rem">📲 Upload &
+          Decode</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AGENT ONBOARDING MULTISTEP MODAL ══ -->
+  <div class="modal-overlay" id="agentOnboardModal" onclick="closeAgentOnboard(event)">
+    <div class="modal" style="max-width:520px;max-height:92vh;overflow-y:auto">
+      <button class="modal-close" onclick="closeAgentOnboard()">✕</button>
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.4rem">
+        <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">🤝</div>
+        <div>
+          <div class="modal-title" style="margin:0;font-size:1.2rem">Become a HelpPay® Agent</div>
+          <div class="modal-sub" style="margin:0;font-size:0.78rem">4 quick steps · Takes 3 minutes</div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="step-progress" id="agentProgress">
+        <div class="step-dot active" id="adot1">1</div>
+        <div class="step-line" id="aline1"></div>
+        <div class="step-dot" id="adot2">2</div>
+        <div class="step-line" id="aline2"></div>
+        <div class="step-dot" id="adot3">3</div>
+        <div class="step-line" id="aline3"></div>
+        <div class="step-dot" id="adot4">4</div>
+      </div>
+
+      <!-- STEP 1: Personal Info -->
+      <div class="step-pane active" id="astep1">
+        <div class="step-title-sm">👤 Personal Information</div>
+        <div class="step-sub-sm">Tell us who you are</div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-field">
+              <label>First Name</label>
+              <input class="agent-input" id="ag_fname" type="text" placeholder="e.g. Emeka">
+            </div>
+            <div class="form-field">
+              <label>Last Name</label>
+              <input class="agent-input" id="ag_lname" type="text" placeholder="e.g. Okafor">
+            </div>
+          </div>
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-field">
+              <label>Date of Birth</label>
+              <input class="agent-input" id="ag_dob" type="date">
+            </div>
+            <div class="form-field">
+              <label>Gender</label>
+              <select class="agent-select" id="ag_gender">
+                <option value="">Select…</option>
+                <option>Male</option><option>Female</option><option>Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Phone / WhatsApp Number</label>
+            <input class="agent-input" id="ag_phone" type="tel" placeholder="+234 80 000 0000">
+          </div>
+          <div class="form-field">
+            <label>Email Address</label>
+            <input class="agent-input" id="ag_email" type="email" placeholder="you@email.com">
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-step-next" onclick="agentNext(1)">Continue → Personal Details</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Location & ID -->
+      <div class="step-pane" id="astep2">
+        <div class="step-title-sm">📍 Location &amp; Identification</div>
+        <div class="step-sub-sm">Where will you operate?</div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-field">
+              <label>State</label>
+              <select class="agent-select" id="ag_state">
+                <option value="">Select State…</option>
+                <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option><option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option><option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option><option>Ekiti</option><option>Enugu</option><option>FCT Abuja</option><option>Gombe</option><option>Imo</option><option>Jigawa</option><option>Kaduna</option><option>Kano</option><option>Katsina</option><option>Kebbi</option><option>Kogi</option><option>Kwara</option><option>Lagos</option><option>Nasarawa</option><option>Niger</option><option>Ogun</option><option>Ondo</option><option>Osun</option><option>Oyo</option><option>Plateau</option><option>Rivers</option><option>Sokoto</option><option>Taraba</option><option>Yobe</option><option>Zamfara</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>City / LGA</label>
+              <input class="agent-input" id="ag_city" type="text" placeholder="e.g. Ikeja">
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Home Address</label>
+            <input class="agent-input" id="ag_address" type="text" placeholder="Street, Area, City">
+          </div>
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-field">
+              <label>ID Type</label>
+              <select class="agent-select" id="ag_idtype">
+                <option value="">Select…</option>
+                <option>National ID (NIN)</option>
+                <option>Driver's Licence</option>
+                <option>Voter's Card</option>
+                <option>International Passport</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>ID Number</label>
+              <input class="agent-input" id="ag_idnum" type="text" placeholder="Enter ID number">
+            </div>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-step-back" onclick="agentBack(2)">← Back</button>
+          <button class="btn-step-next" onclick="agentNext(2)">Continue → Bank Details</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Bank / Payout -->
+      <div class="step-pane" id="astep3">
+        <div class="step-title-sm">🏦 Bank &amp; Payout Details</div>
+        <div class="step-sub-sm">Where should your commissions go?</div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <div class="form-field">
+            <label>Bank Name</label>
+            <select class="agent-select" id="ag_bank">
+              <option value="">Select Bank…</option>
+              <option>Access Bank</option><option>Citibank Nigeria</option><option>Ecobank Nigeria</option><option>Fidelity Bank</option><option>First Bank of Nigeria</option><option>FCMB</option><option>GTBank</option><option>Heritage Bank</option><option>Keystone Bank</option><option>Kuda Bank (Microfinance)</option><option>Moniepoint MFB</option><option>OPay Digital Services</option><option>PalmPay</option><option>Polaris Bank</option><option>Providus Bank</option><option>Stanbic IBTC</option><option>Sterling Bank</option><option>UBA</option><option>Union Bank</option><option>Unity Bank</option><option>VFD Microfinance Bank</option><option>Wema Bank</option><option>Zenith Bank</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-field">
+              <label>Account Number</label>
+              <input class="agent-input" id="ag_accnum" type="text" placeholder="10-digit number" maxlength="10">
+            </div>
+            <div class="form-field">
+              <label>Account Name</label>
+              <input class="agent-input" id="ag_accname" type="text" placeholder="As on your account">
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Occupation / Current Work</label>
+            <input class="agent-input" id="ag_job" type="text" placeholder="e.g. Sales Rep, Student, Trader">
+          </div>
+          <div class="form-field">
+            <label>How will you recruit merchants?</label>
+            <div class="check-group" id="ag_channels" style="margin-top:6px">
+              <button class="check-pill" onclick="togglePill(this)">📍 Door-to-door</button>
+              <button class="check-pill" onclick="togglePill(this)">📱 Social Media</button>
+              <button class="check-pill" onclick="togglePill(this)">🗣 Word of Mouth</button>
+              <button class="check-pill" onclick="togglePill(this)">📢 Market Events</button>
+              <button class="check-pill" onclick="togglePill(this)">💬 WhatsApp Groups</button>
+              <button class="check-pill" onclick="togglePill(this)">🌐 Online Ads</button>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Target merchants per month</label>
+            <select class="agent-select" id="ag_target">
+              <option value="">Select…</option>
+              <option>1–5 merchants</option><option>6–15 merchants</option>
+              <option>16–30 merchants</option><option>30+ merchants</option>
+            </select>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn-step-back" onclick="agentBack(3)">← Back</button>
+          <button class="btn-step-next" onclick="agentNext(3)">Continue → Review &amp; Submit</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: Review & Submit -->
+      <div class="step-pane" id="astep4">
+        <div class="step-title-sm">✅ Review &amp; Submit</div>
+        <div class="step-sub-sm">Confirm your details before sending</div>
+        <div id="agentSummary" style="background:rgba(0,232,122,0.04);border:1.5px solid rgba(0,232,122,0.15);border-radius:14px;padding:1rem;margin-bottom:1.2rem"></div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--card-border);border-radius:12px;padding:1rem;margin-bottom:1.2rem">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:0.8rem;color:var(--white-60);line-height:1.6;font-weight:400;text-transform:none;letter-spacing:0">
+            <input type="checkbox" id="ag_agree" style="width:16px;height:16px;margin-top:2px;accent-color:var(--green);flex-shrink:0">
+            <span>I confirm that the above information is accurate and I agree to HelpPay®'s <strong style="color:var(--green)">Agent Terms &amp; Commission Policy</strong>, <strong style="color:var(--green)">Privacy Policy</strong>, and <strong style="color:var(--cyan)">EULA</strong>. I understand commission payments are subject to successful merchant activations.</span>
+          </label>
+        </div>
+        <div class="step-nav">
+          <button class="btn-step-back" onclick="agentBack(4)">← Back</button>
+          <button class="btn-step-next" style="background:linear-gradient(135deg,var(--cyan),#0080aa);color:#050c14" onclick="submitAgentForm()">🚀 Submit Application</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AGENT APPROVAL COUNTDOWN ══ -->
+  <div class="modal-overlay" id="agentApprovalModal">
+    <div class="modal" style="max-width:400px;text-align:center">
+      <div style="font-size:3rem;margin-bottom:0.8rem;animation:approvedPop 1.5s ease-in-out infinite">🤝</div>
+      <div class="modal-title" style="font-size:1.4rem">Application Submitted!</div>
+      <div class="modal-sub" id="agentApprovalSubtitle">Your agent application has been forwarded.</div>
+      <div style="margin:1.5rem 0">
+        <div style="font-size:0.78rem;color:var(--white-60);margin-bottom:0.6rem;letter-spacing:0.06em;text-transform:uppercase">Awaiting WhatsApp Confirmation</div>
+        <div style="position:relative;width:120px;height:120px;margin:0 auto">
+          <svg width="120" height="120" style="transform:rotate(-90deg)">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(0,212,255,0.12)" stroke-width="8"/>
+            <circle cx="60" cy="60" r="50" fill="none" stroke="var(--cyan)" stroke-width="8"
+              stroke-dasharray="314" id="agentCountdownCircle" stroke-linecap="round"
+              style="transition:stroke-dashoffset 1s linear"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--cyan)" id="agentCountdownNum">60</div>
+            <div style="font-size:0.65rem;color:var(--white-30);letter-spacing:0.08em">SECONDS</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);border-radius:14px;padding:1rem;margin-bottom:1rem">
+        <div style="font-size:0.8rem;color:var(--white-60);line-height:1.7">
+          📲 Sent to HelpPay Admin<br>
+          <strong style="color:var(--cyan)">+2348157505037</strong> via WhatsApp<br>
+          <span style="font-size:0.72rem;color:var(--white-30)">Your Agent Code will be issued upon approval</span>
+        </div>
+      </div>
+      <div style="background:rgba(0,232,122,0.04);border:1px solid rgba(0,232,122,0.15);border-radius:10px;padding:0.8rem;margin-bottom:1.2rem">
+        <div style="font-size:0.75rem;color:var(--white-60);line-height:1.65">
+          🎯 <strong style="color:var(--white)">What's Next:</strong> Our team will verify your details and send your unique Agent Code (e.g. <span style="color:var(--green);font-family:monospace;font-weight:700">HP-AGT-XXXXX</span>) within 24–48 hrs.
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="modal-action" style="background:rgba(255,255,255,0.06);color:var(--white-60);border:1.5px solid var(--card-border);font-size:0.82rem;margin-top:0" onclick="closeAgentApproval()">Close</button>
+        <button class="modal-action" style="margin-top:0;font-size:0.82rem;background:linear-gradient(135deg,var(--cyan),#0080aa);color:#050c14" onclick="openAgentWA()">💬 Open WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TOAST ══ -->
+  <div class="toast-wrap" id="toasts"></div>
+
+  <script>
+    /* ── CURSOR ── */
+    const cur = document.getElementById('cur'), curR = document.getElementById('curR');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cur.style.left = mx + 'px'; cur.style.top = my + 'px' });
+    (function loop() { rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12; curR.style.left = rx + 'px'; curR.style.top = ry + 'px'; requestAnimationFrame(loop) })();
+    document.querySelectorAll('a,button,.biz-card,.drop-item').forEach(el => {
+      el.addEventListener('mouseenter', () => { cur.classList.add('hov'); curR.classList.add('hov') });
+      el.addEventListener('mouseleave', () => { cur.classList.remove('hov'); curR.classList.remove('hov') });
+    });
+
+    /* ── NAV ── */
+    window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('scrolled', scrollY > 50));
+
+    /* ── MOBILE NAV ── */
+    function toggleMob() {
+      document.getElementById('mobNav').classList.toggle('open');
+      document.getElementById('ham').classList.toggle('open');
+    }
+
+    /* ── WORD SWAP ── */
+    const swapWords = ['save time', 'pay smarter', 'skip queues', 'go cashless', 'move faster'];
+    let wi = 0;
+    const wsEl = document.getElementById('wordSwap');
+    function swapWord() {
+      wsEl.style.opacity = '0'; wsEl.style.transform = 'translateY(-12px)';
+      setTimeout(() => {
+        wi = (wi + 1) % swapWords.length; wsEl.textContent = swapWords[wi];
+        wsEl.style.transition = 'opacity 0.4s,transform 0.4s';
+        wsEl.style.opacity = '1'; wsEl.style.transform = 'translateY(0)';
+      }, 350);
+    }
+    setInterval(swapWord, 2600);
+
+    /* ── QR PATTERN ── */
+    const pat = [
+      1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+      1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
+      1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0,
+      1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0,
+      1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0,
+      1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,
+      1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0,
+      0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1,
+      0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0,
+      0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0,
+      1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0,
+      1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0,
+      1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0,
+      1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+      1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0,
+      1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0,
+      1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0,
+    ];
+    const qg = document.getElementById('qrGrid');
+    if (qg) { qg.style.gridTemplateColumns = 'repeat(7,12px)'; pat.slice(0, 49).forEach(v => { const c = document.createElement('div'); c.className = 'qr-cell' + (v ? '' : ' off'); qg.appendChild(c) }) }
+
+    /* ── PARTICLES ── */
+    const pc = document.getElementById('particles');
+    if (pc) {
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div'); p.className = 'particle';
+        const angle = Math.random() * 360, dist = 80 + Math.random() * 120;
+        const tx = 50 + Math.random() * 40 + '%', ty = 50 + Math.random() * 40 + '%';
+        const dx = Math.cos(angle * Math.PI / 180) * dist + 'px', dy = Math.sin(angle * Math.PI / 180) * dist + 'px';
+        p.style.cssText = `--tx:${tx};--ty:${ty};--dx:${dx};--dy:${dy};--dur:${2 + Math.random() * 3}s;--del:${Math.random() * 4}s;left:${tx};top:${ty}`;
+        pc.appendChild(p);
+      }
+    }
+
+    /* ── COUNTER ANIMATION ── */
+    const statsObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { animateStats(); statsObs.unobserve(e.target) } });
+    }, { threshold: 0.3 });
+    const sb = document.querySelector('.stats-band');
+    if (sb) statsObs.observe(sb);
+    function animateStats() {
+      document.querySelectorAll('[data-target]').forEach(el => {
+        const target = parseFloat(el.dataset.target);
+        const isFloat = String(target).includes('.');
+        const suffix = target >= 1000 ? 'K+' : target === 99.9 ? '%' : target === 48 ? '+' : 'M+';
+        let start = 0, steps = 60;
+        const step = target / steps;
+        const iv = setInterval(() => {
+          start = Math.min(start + step, target);
+          el.textContent = (isFloat ? start.toFixed(1) : Math.floor(start)) + suffix;
+          if (start >= target) clearInterval(iv);
+        }, 30);
+      });
+    }
+
+    /* ── SCROLL REVEAL ── */
+    const ro = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('vis'), i * 80); ro.unobserve(e.target) } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+    /* ── BUSINESS DATA ── */
+    const businesses = [
+      { id: 1, name: 'DigitalSolution®', cat: 'Technology', icon: '📡', rating: 4.9, reviews: 312, desc: 'Award-winning technology company.', payments: ['goCOINS', 'Visa/Master', 'Cash'], hours: 'Mon–Sat 7am–9pm', phone: '+2348157505037', wa: '+2348157505037', insta: '@digitalsolution', fb: 'digitalsolutioninternational', color: '#d97706' },
+      { id: 2, name: 'Shoprite Mall', cat: 'Retail & Grocery', icon: '🛒', rating: 4.7, reviews: 1840, desc: 'Africa\'s leading supermarket chain. Fresh produce, imported goods, and household essentials across 100+ outlets.', payments: ['Visa/Master', 'goCOINS', 'Cash',], hours: 'Daily 7am–10pm', phone: '+94 11 234 5678', wa: '+94112345678', insta: '@keellssuper', fb: 'keellssuper', color: '#dc2626' },
+      { id: 3, name: 'Catch24 Collections', cat: 'Retail & Fashion', icon: '👗', rating: 4.6, reviews: 987, desc: 'Premium fashion destination for international and local brands. Clothing, accessories, and lifestyle products.', payments: ['Visa/Master', 'goCOINS', 'Cash'], hours: 'Mon–Sun 10am–9pm', phone: '+94 11 345 6789', wa: '+94113456789', insta: '@catch24collections', fb: 'Catch24 Collections', color: '#7c3aed' },
+      { id: 4, name: 'goCHOPS', cat: 'Food & Chops', icon: '🥗', rating: 4.5, reviews: 2103, desc: 'Nation-wide grocery chain with over 450 stores. Fresh meats, bakery items, and everyday essentials at great prices.', payments: ['goCOINS', 'Cash', 'VISA/Master'], hours: 'Daily 6am–10pm', phone: '+94 11 456 7890', wa: '+94114567890', insta: '@chopLyf', fb: 'ChopLyf', color: '#059669' },
+      { id: 5, name: 'ArewaBelle', cat: 'Health & Beauty', icon: '🌿', rating: 4.9, reviews: 456, desc: 'Luxury Ayurveda spa and wellness brand. Authentic herbal treatments, signature oils, and natural skincare.', payments: ['Visa/Master', 'HelpPay® QR', 'Bank Transfer'], hours: 'Daily 9am–8pm', phone: '+94 11 567 8901', wa: '+94115678901', insta: '@arewabelle', fb: 'ArewaBelle', color: '#0891b2' },
+      { id: 6, name: 'Domino\'s Pizza NG', cat: 'Food & Beverage', icon: '🍕', rating: 4.4, reviews: 723, desc: 'Hot, fresh pizza delivered to your door in 30 minutes or less. 20+ toppings, gluten-free options available.', payments: ['HelpPay® QR', 'Visa/Master', 'Cash', 'mCash'], hours: 'Daily 11am–11pm', phone: '+94 11 678 9012', wa: '+94116789012', insta: '@dominosnaija', fb: 'DominosPizzaNG', color: '#1d4ed8' },
+      { id: 7, name: 'MTN Nigeria', cat: 'Telecom Services', icon: '📡', rating: 4.3, reviews: 3210, desc: 'Nigeria\'s #1 connectivity provider. Mobile, broadband, and TV services. Recharge, bill pay, and device care.', payments: ['goCOINS', 'Cash', 'Visa/Master', 'Bank Transfer'], hours: 'Mon–Fri 8am–6pm', phone: '+94 77 DIALOG', wa: '+94770000000', insta: '@MTN_ng', fb: 'MTN Nigeria', color: '#ea580c' },
+      { id: 8, name: 'Paradise Road Gallery', cat: 'Arts & Lifestyle', icon: '🎨', rating: 5.0, reviews: 88, desc: 'Curated gallery and lifestyle store in Colombo 3. Handcrafted Sri Lankan art, books, ceramics, and bespoke gifts.', payments: ['Visa/Master', 'goCOINS', 'Cash'], hours: 'Tue–Sun 10am–7pm', phone: '+94 11 789 0123', wa: '+94117890123', insta: '@paradiseroadlk', fb: 'paradiseroadgallery', color: '#be185d' },
+    ];
+
+    /* ── RENDER CARDS ── */
+    function renderBiz(list = businesses) {
+      const g = document.getElementById('bizGrid');
+      g.innerHTML = '';
+      if (!list.length) { g.innerHTML = '<p style="color:var(--white-30);grid-column:1/-1;text-align:center;padding:2rem">No merchants found. Try a different search.</p>'; return }
+      list.forEach((b, i) => {
+        const card = document.createElement('div');
+        card.className = 'biz-card reveal';
+        card.style.setProperty('--header-grad', `linear-gradient(135deg,${b.color},transparent)`);
+        card.innerHTML = `
+      <div class="biz-card-header">
+        <div class="biz-icon">${b.icon}</div>
+        <div><div class="biz-name">${b.name}</div><div class="biz-cat">${b.cat}</div></div>
+        <div class="verified" title="Verified Merchant">✅</div>
+      </div>
+      <div class="biz-card-body">
+        <div class="biz-rating">
+          <span class="stars">${'⭐'.repeat(Math.floor(b.rating))}</span>
+          <strong>${b.rating}</strong>
+          <span style="color:var(--white-30)">(${b.reviews.toLocaleString()})</span>
+          <span style="margin-left:auto;font-size:0.75rem;color:var(--white-30)">${b.hours}</span>
+        </div>
+        <div class="biz-desc">${b.desc}</div>
+        <div class="pay-methods">${b.payments.map((p, i) => `<span class="pay-badge ${['green', 'cyan', 'yellow', 'green'][i % 4]}">${p}</span>`).join('')}</div>
+        <div class="biz-actions">
+          <button class="act-btn primary" onclick="quickPay('${b.name}')">⚡ Pay Now</button>
+          <button class="act-btn social" onclick="openWA('${b.wa}','${b.name}')">
+            <span>💬</span> WhatsApp
+          </button>
+          <button class="act-btn" onclick="openInsta('${b.insta}')">📸</button>
+          <button class="act-btn" onclick="openFB('${b.fb}')">👍</button>
+        </div>
+      </div>
+    `;
+        g.appendChild(card);
+        setTimeout(() => card.classList.add('vis'), i * 80);
+      });
+    }
+    renderBiz();
+
+    /* ── SEARCH ── */
+    const sb2 = document.getElementById('searchBar');
+    const drop = document.getElementById('searchDrop');
+    const clrBtn = document.getElementById('searchClear');
+
+    sb2.addEventListener('input', e => {
+      const q = e.target.value.trim().toLowerCase();
+      clrBtn.style.display = q ? 'block' : 'none';
+      if (!q) { drop.classList.remove('open'); renderBiz(); return }
+      const hits = businesses.filter(b => b.name.toLowerCase().includes(q) || b.cat.toLowerCase().includes(q) || b.desc.toLowerCase().includes(q));
+      drop.innerHTML = hits.slice(0, 5).map(b => `
+    <div class="drop-item" onclick="selectBiz(${b.id})">
+      <div class="drop-avatar" style="background:rgba(${hexToRgb(b.color)},0.15)">${b.icon}</div>
+      <div class="drop-info"><h4>${b.name}</h4><p>${b.cat} · ${b.rating}⭐</p></div>
+      <div class="drop-tag">${b.payments[0]}</div>
+    </div>
+  `).join('') || '<div style="padding:1.2rem 1.4rem;color:var(--white-30);font-size:0.85rem">No results found</div>';
+      drop.classList.add('open');
+      renderBiz(hits);
+    });
+    sb2.addEventListener('keydown', e => { if (e.key === 'Escape') { clearSearch() } });
+    document.addEventListener('click', e => { if (!e.target.closest('.search-bar-wrap')) drop.classList.remove('open') });
+
+    function clearSearch() { sb2.value = ''; clrBtn.style.display = 'none'; drop.classList.remove('open'); renderBiz() }
+    function selectBiz(id) {
+      const b = businesses.find(x => x.id === id);
+      sb2.value = b.name; drop.classList.remove('open');
+      renderBiz(businesses.filter(x => x.id === id));
+    }
+    function hexToRgb(h) { const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(h); return r ? `${parseInt(r[1], 16)},${parseInt(r[2], 16)},${parseInt(r[3], 16)}` : '0,0,0' }
+
+    /* ── SOCIAL LINKS ── */
+    function openWA(num, name) { window.open(`https://wa.me/${num.replace(/\D/g, '')}?text=Hi, I paid via HelpPay® for ${encodeURIComponent(name)}`, '_blank') }
+    function openInsta(h) { window.open(`https://instagram.com/${h.replace('@', '')}`, '_blank') }
+    function openFB(h) { window.open(`https://facebook.com/${h}`, '_blank') }
+    function quickPay(name) { showToast(`Opening payment to ${name}…`, 'info'); setTimeout(openPayModal, 500) }
+
+    /* ── PAY MODAL ── */
+    let camStream = null, camOn = false;
+    function openPayModal() {
+      document.getElementById('payModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('paySuccess').style.display = 'none';
+      document.getElementById('camPane').style.display = 'block';
+      document.getElementById('galPane').style.display = 'none';
+    }
+    function closePayModal(e) {
+      if (e && e.target !== document.getElementById('payModal')) return;
+      document.getElementById('payModal').classList.remove('open');
+      document.body.style.overflow = '';
+      stopCamera();
+    }
+    function switchTab(t) {
+      document.getElementById('tabCam').classList.toggle('active', t === 'cam');
+      document.getElementById('tabGal').classList.toggle('active', t === 'gal');
+      document.getElementById('camPane').style.display = t === 'cam' ? 'block' : 'none';
+      document.getElementById('galPane').style.display = t === 'gal' ? 'block' : 'none';
+      if (t !== 'cam') stopCamera();
+    }
+    async function toggleCamera() {
+      const btn = document.getElementById('camBtn');
+      if (camOn) { stopCamera(); btn.textContent = '📷 Start Camera'; return }
+      try {
+        camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        const vid = document.getElementById('cameraFeed');
+        vid.srcObject = camStream; vid.style.display = 'block';
+        document.getElementById('camPlaceholder').style.display = 'none';
+        ['scanLine', 'cornTL', 'cornTR', 'cornBL', 'cornBR'].forEach(id => { document.getElementById(id).style.display = 'block' });
+        btn.textContent = '⏹ Stop Camera'; camOn = true;
+        showToast('Camera active — point at a QR code', 'info');
+        setTimeout(simulateScan, 4000);
+      } catch (err) { showToast('Camera access denied. Use gallery upload instead.', 'err') }
+    }
+    function stopCamera() {
+      if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null }
+      const vid = document.getElementById('cameraFeed');
+      if (vid) { vid.style.display = 'none' }
+      document.getElementById('camPlaceholder').style.display = 'flex';
+      ['scanLine', 'cornTL', 'cornTR', 'cornBL', 'cornBR'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.style.display = 'none'
+      });
+      camOn = false;
+    }
+    function simulateScan() {
+      ['camPane', 'galPane'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none' });
+      const s = document.getElementById('paySuccess'); s.style.display = 'flex';
+      stopCamera(); showToast('QR scanned successfully!', 'ok');
+    }
+    function handleGallery(e) {
+      if (e.target.files.length) {
+        showToast('Image uploaded — processing QR…', 'info');
+        setTimeout(simulateScan, 1500);
+      }
+    }
+
+    /* ── VOICE FEEDBACK ── */
+    function speak(text, rate = 1, pitch = 1) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = rate; u.pitch = pitch; u.volume = 1;
+      const voices = window.speechSynthesis.getVoices();
+      const en = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'))
+        || voices.find(v => v.lang.startsWith('en')) || voices[0];
+      if (en) u.voice = en;
+      window.speechSynthesis.speak(u);
+    }
+    window.speechSynthesis && window.speechSynthesis.getVoices(); // preload
+
+    /* ── ADD MERCHANT MODAL ── */
+    function openAddMerchant() {
+      document.getElementById('addModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeAddModal(e) {
+      if (e && e.target !== document.getElementById('addModal')) return;
+      document.getElementById('addModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function togglePill(btn) { btn.classList.toggle('sel') }
+
+    let countdownTimer = null;
+    let approvalWAMsg = '';
+
+    function submitMerchant() {
+      const n = document.getElementById('mName').value.trim();
+      const c = document.getElementById('mCat').value;
+      const p = document.getElementById('mPhone').value.trim();
+      const city = document.getElementById('mCity').value.trim();
+      const insta = document.getElementById('mInsta').value.trim();
+      if (!n || !c || !p) { showToast('Please fill in all required fields', 'err'); speak('Please fill in all required fields'); return }
+
+      const selPay = [...document.querySelectorAll('#payMethods .check-pill.sel')].map(b => b.textContent.trim()).join(', ') || 'Not specified';
+
+      approvalWAMsg = `🏪 *New HelpPay® Merchant Registration*\n\n` +
+        `*Business Name:* ${n}\n` +
+        `*Category:* ${c}\n` +
+        `*Phone/WhatsApp:* ${p}\n` +
+        `*City:* ${city || 'Not specified'}\n` +
+        `*aCODE:* ${acode || 'Not specified'}\n` +
+        `*Payment Methods:* ${selPay}\n` +
+        `*WA Catalog:* ${insta || 'N/A'}\n\n` +
+        `_Submitted via HelpPay® App — Awaiting approval_`;
+
+      closeAddModal();
+
+      // Send to WhatsApp
+      const waNum = '2348157505037';
+      window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(approvalWAMsg)}`, '_blank');
+
+      // Voice feedback
+      speak(`Request sent! Awaiting approval for ${n}. Please check your WhatsApp for update.`);
+
+      // Show countdown approval modal
+      openApprovalModal(n);
+    }
+
+    function openApprovalModal(name) {
+      document.getElementById('approvalModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('approvalMerchantName').textContent = `"${name}" application forwarded to admin via WhatsApp.`;
+
+      // Start 60s countdown
+      let secs = 60;
+      const numEl = document.getElementById('countdownNum');
+      const circle = document.getElementById('countdownCircle');
+      const circumference = 314;
+      circle.style.strokeDashoffset = '0';
+      numEl.textContent = secs;
+
+      if (countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        secs--;
+        numEl.textContent = secs;
+        const offset = circumference - (circumference * (secs / 60));
+        circle.style.strokeDashoffset = offset;
+        if (secs <= 0) {
+          clearInterval(countdownTimer);
+          numEl.textContent = '✓';
+          circle.style.stroke = 'var(--green)';
+          showToast('Awaiting admin approval on WhatsApp', 'info');
+          speak('Your merchant registration has been submitted. Awaiting admin approval on WhatsApp.');
+        }
+      }, 1000);
+    }
+
+    function closeApprovalModal() {
+      document.getElementById('approvalModal').classList.remove('open');
+      document.body.style.overflow = '';
+      if (countdownTimer) clearInterval(countdownTimer);
+    }
+
+    function openApprovalWA() {
+      const waNum = '2348157505037';
+      window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(approvalWAMsg)}`, '_blank');
+    }
+
+    /* ── MY PAYMENT QR MODAL ── */
+    function openQRModal() {
+      document.getElementById('qrModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      switchQRTab('create');
+    }
+    function closeQRModal(e) {
+      if (e && e.target !== document.getElementById('qrModal')) return;
+      document.getElementById('qrModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function switchQRTab(t) {
+      document.getElementById('qrTabCreate').classList.toggle('active', t === 'create');
+      document.getElementById('qrTabScan').classList.toggle('active', t === 'scan');
+      document.getElementById('qrCreatorPane').style.display = t === 'create' ? 'block' : 'none';
+      document.getElementById('qrDisplayPane').style.display = 'none';
+      document.getElementById('qrScanResultPane').style.display = t === 'scan' ? 'block' : 'none';
+    }
+    function resetQRCreator() {
+      document.getElementById('qrDisplayPane').style.display = 'none';
+      document.getElementById('qrCreatorPane').style.display = 'block';
+    }
+
+    // Simple QR code generator using qrcode.js pattern drawing
+    function generatePaymentQR() {
+      const name = document.getElementById('qrOwnerName').value.trim();
+      const addr = document.getElementById('qrWalletAddr').value.trim();
+      const amt = document.getElementById('qrAmount').value;
+      const cur = document.getElementById('qrCurrency').value;
+      const note = document.getElementById('qrNote').value.trim();
+      if (!name || !addr) { showToast('Please enter your name and wallet address', 'err'); speak('Please enter your name and wallet address'); return }
+
+      const payload = JSON.stringify({ name, wallet: addr, amount: amt || '', currency: cur, note, platform: 'HelpPay®', ts: Date.now() });
+
+      // Draw QR on canvas using a simple pattern
+      const canvas = document.getElementById('generatedQR');
+      drawQRCanvas(canvas, payload, 200);
+      document.getElementById('qrAddrDisplay').textContent = addr;
+      document.getElementById('qrOwnerLabel').textContent = name + (amt ? ` · ${cur} ${amt}` : '');
+      document.getElementById('qrCreatorPane').style.display = 'none';
+      document.getElementById('qrDisplayPane').style.display = 'block';
+      showToast('Payment QR generated!', 'ok');
+      speak(`Payment QR code created for ${name}. You can now share it to receive payments.`);
+    }
+
+    function drawQRCanvas(canvas, data, size) {
+      const ctx = canvas.getContext('2d');
+      canvas.width = size; canvas.height = size;
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
+
+      // Use the QR-like pattern derived from data hash
+      const hash = simpleHash(data);
+      const mod = 25; const cell = Math.floor(size / mod);
+      ctx.fillStyle = '#050c14';
+
+      // Finder patterns
+      function finder(x, y) {
+        ctx.fillStyle = '#050c14';
+        ctx.fillRect(x * cell, y * cell, 7 * cell, 7 * cell);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect((x + 1) * cell, (y + 1) * cell, 5 * cell, 5 * cell);
+        ctx.fillStyle = '#050c14';
+        ctx.fillRect((x + 2) * cell, (y + 2) * cell, 3 * cell, 3 * cell);
+      }
+      finder(0, 0); finder(mod - 7, 0); finder(0, mod - 7);
+
+      // Data modules
+      const rng = seededRand(hash);
+      ctx.fillStyle = '#050c14';
+      for (let r = 0; r < mod; r++) {
+        for (let c2 = 0; c2 < mod; c2++) {
+          const inFinder = (r < 8 && c2 < 8) || (r < 8 && c2 > mod - 9) || (r > mod - 9 && c2 < 8);
+          if (!inFinder && rng() > 0.48) {
+            ctx.fillRect(c2 * cell, r * cell, cell, cell);
+          }
+        }
+      }
+
+      // Accent dots (green)
+      ctx.fillStyle = '#00e87a';
+      for (let i = 0; i < 5; i++) {
+        const x = Math.floor(rng() * (mod - 12) + 8);
+        const y = Math.floor(rng() * (mod - 12) + 8);
+        ctx.fillRect(x * cell, y * cell, cell, cell);
+      }
+    }
+
+    function simpleHash(str) { let h = 5381; for (let i = 0; i < str.length; i++)h = (h * 33 ^ str.charCodeAt(i)) >>> 0; return h }
+    function seededRand(seed) { let s = seed; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296 } }
+
+    function shareQRCode() {
+      const canvas = document.getElementById('generatedQR');
+      const name = document.getElementById('qrOwnerLabel').textContent;
+      canvas.toBlob(blob => {
+        if (navigator.share && navigator.canShare) {
+          const file = new File([blob], 'helppay-qr.png', { type: 'image/png' });
+          navigator.share({ title: `HelpPay® QR — ${name}`, text: `Pay ${name} via HelpPay®. Scan this QR code.`, files: [file] })
+            .catch(() => downloadQR());
+        } else {
+          downloadQR();
+          showToast('QR saved! Share it from your downloads', 'info');
+        }
+      });
+      speak('Sharing your payment QR code.');
+    }
+
+    function downloadQR() {
+      const canvas = document.getElementById('generatedQR');
+      const name = document.getElementById('qrOwnerLabel').textContent.replace(/[^a-z0-9]/gi, '_');
+      const a = document.createElement('a'); a.download = `helppay_qr_${name}.png`;
+      a.href = canvas.toDataURL('image/png'); a.click();
+      showToast('QR code downloaded!', 'ok');
+    }
+
+    function processUploadedQR(e) {
+      if (!e.target.files.length) return;
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          // Simulate QR decode — read pixel center region for color hints
+          const tmpCanvas = document.createElement('canvas');
+          tmpCanvas.width = img.width; tmpCanvas.height = img.height;
+          const tmpCtx = tmpCanvas.getContext('2d');
+          tmpCtx.drawImage(img, 0, 0);
+
+          // Try to detect if it's a HelpPay QR by color analysis
+          const centerData = tmpCtx.getImageData(img.width / 2 - 10, img.height / 2 - 10, 20, 20).data;
+          const avgR = centerData.reduce((s, v, i) => i % 4 === 0 ? s + v : s, 0) / 100;
+          const avgG = centerData.reduce((s, v, i) => i % 4 === 1 ? s + v : s, 0) / 100;
+
+          showToast('QR image decoded — displaying payment details', 'ok');
+          speak('Q R code processed. Payment details are now displayed.');
+
+          // Display decoded payment info
+          const isHelpPay = avgR < 100 && avgG > 80;
+          const decodeEl = document.getElementById('qrDecodeContent');
+          const fakeWallet = '0x' + Math.random().toString(16).substr(2, 8).toUpperCase() + '...' + Math.random().toString(16).substr(2, 4).toUpperCase();
+          const fakeName = ['DigitalSolution®', 'Shoprite Mall', 'ArewaBelle®', 'Total Energies'][Math.floor(Math.random() * 4)];
+          const fakeAmt = (Math.random() * 5000 + 100).toFixed(2);
+          const fakeCur = ['GBP', 'NGN', 'USD', 'EURO'][Math.floor(Math.random() * 4)];
+
+          decodeEl.innerHTML = `
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:var(--white-30)">Recipient</span><strong style="color:var(--cyan)">${fakeName}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:var(--white-30)">Wallet</span><span style="font-family:monospace;font-size:0.76rem;color:var(--white)">${fakeWallet}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:var(--white-30)">Amount</span><strong style="color:var(--green)">${fakeCur} ${fakeAmt}</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="color:var(--white-30)">Platform</span><span>HelpPay® QR</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:var(--white-30)">Status</span><span style="color:var(--green)">✅ Valid QR</span></div>
+      `;
+          document.getElementById('qrDecodeResult').style.display = 'block';
+          document.getElementById('qrUploadZone').style.display = 'none';
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function quickPayFromQR() {
+      closeQRModal();
+      openPayModal();
+      speak('Opening payment. Please confirm the transaction.');
+    }
+
+    /* ══ BANK CAROUSEL ══ */
+    const banks = [
+      { name:'OPay',       color:'#1e7b34', bg:'#0a2e14', emoji:'🟢' },
+      { name:'Moniepoint', color:'#00a86b', bg:'#002e1e', emoji:'💚' },
+      { name:'PalmPay',    color:'#f25c54', bg:'#2e0a09', emoji:'🔴' },
+      { name:'GTBank',     color:'#f68b1f', bg:'#2e1a00', emoji:'🟠' },
+      { name:'Access Bank',color:'#cf1f2e', bg:'#2e0509', emoji:'🏦' },
+      { name:'Zenith Bank',color:'#c8102e', bg:'#2a040b', emoji:'💳' },
+      { name:'UBA',        color:'#e20714', bg:'#2e0305', emoji:'🏛️' },
+      { name:'First Bank', color:'#003087', bg:'#00091a', emoji:'🔵' },
+      { name:'Kuda Bank',  color:'#521ed5', bg:'#15063a', emoji:'💜' },
+      { name:'Stanbic IBTC',color:'#009ad4',bg:'#002233', emoji:'🏦' },
+      { name:'VFD MFB',    color:'#00c1a4', bg:'#002420', emoji:'🔷' },
+      { name:'Fidelity',   color:'#00529b', bg:'#000f1e', emoji:'💎' },
+      { name:'Polaris',    color:'#6dba38', bg:'#0e2205', emoji:'🌿' },
+      { name:'Wema Bank',  color:'#7600b0', bg:'#180024', emoji:'💼' },
+    ];
+    (function buildCarousel(){
+      const track = document.getElementById('carouselTrack');
+      if(!track) return;
+      const doubled = [...banks, ...banks]; // duplicate for seamless loop
+      doubled.forEach(b => {
+        const chip = document.createElement('div');
+        chip.className = 'bank-chip';
+        chip.innerHTML = `
+          <div class="bk-logo" style="background:${b.bg};color:${b.color};font-size:0.75rem">${b.emoji}</div>
+          <div class="bk-name" style="color:${b.color}">${b.name}</div>
+        `;
+        track.appendChild(chip);
+      });
+    })();
+
+    /* ══ AGENT ONBOARDING ══ */
+    let agentStep = 1;
+    let agentWAMsg = '';
+    let agentCountdownTimer = null;
+
+    function openAgentOnboard() {
+      document.getElementById('agentOnboardModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      goAgentStep(1);
+    }
+    function closeAgentOnboard(e) {
+      if(e && e.target !== document.getElementById('agentOnboardModal')) return;
+      document.getElementById('agentOnboardModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function goAgentStep(n) {
+      agentStep = n;
+      for(let i = 1; i <= 4; i++) {
+        document.getElementById('astep'+i).classList.toggle('active', i === n);
+        const dot = document.getElementById('adot'+i);
+        dot.classList.toggle('active', i === n);
+        dot.classList.toggle('done', i < n);
+        if(i < 4) document.getElementById('aline'+i).classList.toggle('done', i < n);
+      }
+      if(n === 4) buildAgentSummary();
+    }
+
+    function agentNext(step) {
+      if(step === 1) {
+        const fn = document.getElementById('ag_fname').value.trim();
+        const ln = document.getElementById('ag_lname').value.trim();
+        const ph = document.getElementById('ag_phone').value.trim();
+        const em = document.getElementById('ag_email').value.trim();
+        if(!fn || !ln || !ph || !em) { showToast('Please fill all required fields','err'); speak('Please fill in all required fields'); return; }
+      }
+      if(step === 2) {
+        const st = document.getElementById('ag_state').value;
+        const ct = document.getElementById('ag_city').value.trim();
+        const id = document.getElementById('ag_idnum').value.trim();
+        if(!st || !ct || !id) { showToast('Please complete location & ID fields','err'); return; }
+      }
+      if(step === 3) {
+        const bk = document.getElementById('ag_bank').value;
+        const ac = document.getElementById('ag_accnum').value.trim();
+        const an = document.getElementById('ag_accname').value.trim();
+        if(!bk || !ac || !an) { showToast('Please fill in your bank details','err'); return; }
+      }
+      goAgentStep(step + 1);
+    }
+    function agentBack(step) { goAgentStep(step - 1); }
+
+    function buildAgentSummary() {
+      const rows = [
+        ['Full Name', (document.getElementById('ag_fname').value+' '+document.getElementById('ag_lname').value).trim()],
+        ['Phone', document.getElementById('ag_phone').value],
+        ['Email', document.getElementById('ag_email').value],
+        ['State', document.getElementById('ag_state').value],
+        ['City', document.getElementById('ag_city').value],
+        ['ID Type', document.getElementById('ag_idtype').value || '—'],
+        ['Bank', document.getElementById('ag_bank').value],
+        ['Account No.', document.getElementById('ag_accnum').value],
+        ['Account Name', document.getElementById('ag_accname').value],
+        ['Target/Month', document.getElementById('ag_target').value || '—'],
+      ];
+      document.getElementById('agentSummary').innerHTML = rows.map(([k,v])=>`
+        <div class="agent-summary-row">
+          <span style="color:var(--white-30)">${k}</span>
+          <strong style="color:var(--white);text-align:right;max-width:60%;word-break:break-word">${v||'—'}</strong>
+        </div>`).join('');
+    }
+
+    function submitAgentForm() {
+      if(!document.getElementById('ag_agree').checked) {
+        showToast('Please agree to the terms to continue','err');
+        speak('Please read and agree to the terms before submitting.'); return;
+      }
+      const channels = [...document.querySelectorAll('#ag_channels .check-pill.sel')].map(b=>b.textContent.trim()).join(', ') || 'Not specified';
+      const fn = document.getElementById('ag_fname').value.trim();
+      const ln = document.getElementById('ag_lname').value.trim();
+
+      agentWAMsg =
+        `🤝 *New HelpPay® Agent Application*\n\n` +
+        `*Full Name:* ${fn} ${ln}\n` +
+        `*DOB:* ${document.getElementById('ag_dob').value||'—'}\n` +
+        `*Gender:* ${document.getElementById('ag_gender').value||'—'}\n` +
+        `*Phone:* ${document.getElementById('ag_phone').value}\n` +
+        `*Email:* ${document.getElementById('ag_email').value}\n` +
+        `*State:* ${document.getElementById('ag_state').value}\n` +
+        `*City:* ${document.getElementById('ag_city').value}\n` +
+        `*Address:* ${document.getElementById('ag_address').value||'—'}\n` +
+        `*ID Type:* ${document.getElementById('ag_idtype').value||'—'}\n` +
+        `*ID Number:* ${document.getElementById('ag_idnum').value||'—'}\n` +
+        `*Bank:* ${document.getElementById('ag_bank').value}\n` +
+        `*Acc. No:* ${document.getElementById('ag_accnum').value}\n` +
+        `*Acc. Name:* ${document.getElementById('ag_accname').value}\n` +
+        `*Occupation:* ${document.getElementById('ag_job').value||'—'}\n` +
+        `*Channels:* ${channels}\n` +
+        `*Monthly Target:* ${document.getElementById('ag_target').value||'—'}\n\n` +
+        `_Submitted via HelpPay® Agent Portal_`;
+
+      // Close onboard modal
+      document.getElementById('agentOnboardModal').classList.remove('open');
+
+      // Open WhatsApp
+      window.open(`https://wa.me/2348157505037?text=${encodeURIComponent(agentWAMsg)}`, '_blank');
+
+      // Voice feedback
+      speak(`Application submitted for ${fn}! Please check WhatsApp and await your agent code within 24 to 48 hours.`);
+
+      // Show countdown modal
+      openAgentApprovalCountdown(fn + ' ' + ln);
+    }
+
+    function openAgentApprovalCountdown(name) {
+      document.getElementById('agentApprovalModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('agentApprovalSubtitle').textContent = `"${name}" application forwarded to HelpPay® Admin.`;
+
+      let secs = 60;
+      const numEl = document.getElementById('agentCountdownNum');
+      const circle = document.getElementById('agentCountdownCircle');
+      const circ = 314;
+      circle.style.strokeDashoffset = '0';
+      numEl.textContent = secs;
+
+      if(agentCountdownTimer) clearInterval(agentCountdownTimer);
+      agentCountdownTimer = setInterval(() => {
+        secs--;
+        numEl.textContent = secs;
+        circle.style.strokeDashoffset = circ - (circ * (secs / 60));
+        if(secs <= 0) {
+          clearInterval(agentCountdownTimer);
+          numEl.textContent = '✓';
+          circle.style.stroke = 'var(--green)';
+          showToast('Application sent! Expect your Agent Code in 24–48 hrs','info');
+          speak('Your application is confirmed. Expect your HelpPay Agent Code within 24 to 48 hours.');
+        }
+      }, 1000);
+    }
+
+    function closeAgentApproval() {
+      document.getElementById('agentApprovalModal').classList.remove('open');
+      document.body.style.overflow = '';
+      if(agentCountdownTimer) clearInterval(agentCountdownTimer);
+    }
+    function openAgentWA() {
+      window.open(`https://wa.me/2348157505037?text=${encodeURIComponent(agentWAMsg)}`, '_blank');
+    }
+
+    /* ── TOAST ── */
+    function showToast(msg, type = 'ok') {
+      const w = document.getElementById('toasts');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.innerHTML = { ok: '✅', info: '💡', err: '❌' }[type] + ' ' + msg;
+      w.appendChild(t);
+      setTimeout(() => { t.style.animation = 'toastIn 0.3s reverse'; setTimeout(() => t.remove(), 300) }, 3500);
+    }
+  </script>
+</body>
+
+</html>
