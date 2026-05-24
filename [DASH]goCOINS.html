@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>💰goCOINs Token Wallet | Dashboard</title>
+    <title>💰 goCOINs Token Wallet | Dashboard</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@500;700&family=Syne:wght@800&display=swap"
         rel="stylesheet">
@@ -332,8 +332,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         .confirm-card {
@@ -344,7 +351,7 @@
             text-align: center;
             max-width: 400px;
             width: 100%;
-            box-shadow: 0 0 60px rgba(245, 197, 66, 0.2), 0 20px 50px rgba(0,0,0,0.6);
+            box-shadow: 0 0 60px rgba(245, 197, 66, 0.2), 0 20px 50px rgba(0, 0, 0, 0.6);
             position: relative;
         }
 
@@ -384,7 +391,7 @@
             justify-content: space-between;
             align-items: flex-start;
             padding: 7px 0;
-            border-bottom: 1px solid rgba(245,197,66,0.07);
+            border-bottom: 1px solid rgba(245, 197, 66, 0.07);
             gap: 12px;
         }
 
@@ -572,7 +579,7 @@
     <div class="container">
         <div class="wallet-hero">
             <div class="hero-lbl">Token Balance</div>
-            <div class="hero-bal" id="activeBalanceDisplay">***.00 GcT</div>
+            <div class="hero-bal" id="activeBalanceDisplay">***.00 GC</div>
             <div class="hero-sub">
                 <div class="pulse-dot"></div> Live Network Synchronized
             </div>
@@ -588,11 +595,11 @@
             <div class="panel-title">Secure Token Transfer</div>
             <div class="form-group">
                 <label>Recipient Address / WhatsApp</label>
-                <input type="text" id="tx-recipient" placeholder="Enter wallet Address">
+                <input type="text" id="tx-recipient" placeholder="e.g.*5050*[----]#">
             </div>
             <div class="form-group">
-                <label>Amount to Transfer (GC)</label>
-                <input type="number" id="tx-amount" placeholder="1000.00" step="any">
+                <label>Amount to Transfer (GCT)</label>
+                <input type="number" id="tx-amount" placeholder="0.00" step="any">
             </div>
             <button class="gold-btn" onclick="executeTransfer()">Authorize &amp; Send</button>
         </div>
@@ -601,37 +608,37 @@
             <div class="panel-title">Voucher Wallet Top-Up</div>
             <div class="form-group">
                 <label>Top-Up Voucher Pin</label>
-                <input type="text" id="topup-pin" placeholder="Enter 5-digit verification PIN" maxlength="5">
+                <input type="text" id="topup-pin" placeholder="Enter 11-digit verification PIN" maxlength="11">
             </div>
             <button class="gold-btn" onclick="executeTopup()">Verify &amp; Fund</button>
         </div>
 
         <div id="panel-receive" class="view-panel">
-            <div class="panel-title">Request Payment / Receive Top-Up</div>
+            <div class="panel-title">Request goCOINS Token TopUp</div>
             <div class="form-group">
-                <label>Payer Identity / WhatsApp</label>
-                <input type="text" id="rx-payer" placeholder="e.g., Payer's Wallet address">
+                <label>Requesting From</label>
+                <input type="text" id="rx-payer" placeholder="e.g., Sender's Address">
             </div>
             <div class="form-group">
-                <label>Request Amount (GC)</label>
-                <input type="number" id="rx-amount" placeholder="1000.00" step="any">
+                <label>Request Amount (GCT)</label>
+                <input type="number" id="rx-amount" placeholder="Must be above 5000.00" step="any">
             </div>
             <button class="gold-btn" onclick="executeReceive()">Generate Request Notification</button>
         </div>
 
         <div class="card">
-            <div class="panel-title">🪙 Token Value Converter</div>
+            <div class="panel-title">🔄 Token Value Converter</div>
             <div class="form-group">
-                <label>Input Tokens to Convert (GcT)</label>
-                <input type="number" id="calc-tokens" placeholder="0" oninput="runTokenConversion()">
+                <label>Input Tokens Volume to Convert (in GCT)</label>
+                <input type="number" id="calc-tokens" placeholder="e.g 1000" oninput="runTokenConversion()">
             </div>
             <div class="result-box">
-                <div class="res-label">Equivalent Cash Value</div>
+                <div class="res-label">Equivalent in Naira</div>
                 <div class="res-value" id="calc-cash-output">₦0.00</div>
             </div>
             <div class="form-group" style="margin-bottom:0;">
-                <label>Fixed Exchange Rate Settlement</label>
-                <div class="static-display">1 GcT = ₦0.83 NGN</div>
+                <label>goCOINS Rate Today</label>
+                <div class="static-display">1GCT = ₦0.83NGN</div>
             </div>
         </div>
     </div>
@@ -641,22 +648,28 @@
         <div class="confirm-card">
             <span class="confirm-icon" id="confirm-icon">📤</span>
             <div class="confirm-title" id="confirm-title">Confirm Transfer</div>
-            <div class="confirm-subtitle">Review your request before sending to WhatsApp</div>
+            <div class="confirm-subtitle">Review your request before sending to WhatsApp/Telegram</div>
 
             <div class="confirm-details" id="confirm-details">
                 <!-- rows injected by JS -->
             </div>
 
             <div class="confirm-wa-badge">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                Sending to WhatsApp · +2348157505037
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366">
+                    <path
+                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+                Sending via · WhatsApp/Telegram
             </div>
 
             <div class="confirm-btns">
                 <button class="btn-cancel" onclick="closeConfirmModal()">✕ Cancel</button>
                 <button class="btn-send-wa" id="confirm-send-btn" onclick="proceedToWhatsApp()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    Send Now
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>
+                    Send Request
                 </button>
             </div>
         </div>
@@ -666,7 +679,7 @@
         <div class="cd-card">
             <h3 style="color: var(--gold); letter-spacing: 2px;">ENCRYPTING RUNTIME</h3>
             <p style="color: var(--sub); font-size: 0.8rem; margin-top: 8px;">Routing verification handshake securely to
-                WhatsApp Node...</p>
+                WhatsApp/Telegram Node...</p>
             <div class="cd-num" id="cdTimer">3</div>
             <p id="cdAppName"
                 style="color: var(--gold); font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
@@ -676,7 +689,7 @@
 
     <script>
         const WA_DESTINATION = "2348157505037";
-        const VAL_EXCHANGE_RATE = 0.83;
+        const VAL_EXCHANGE_RATE = 0.80;
         const STORAGE_KEY = "gocoins_wallet_persistence";
 
         let walletState = { balance: 0.00 };
@@ -699,7 +712,7 @@
 
         function updateBalanceMetric() {
             document.getElementById('activeBalanceDisplay').innerText =
-                walletState.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " GcT";
+                walletState.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " GCT";
         }
 
         /* ── Tab Switching ── */
@@ -767,7 +780,7 @@
                     clearInterval(ref);
                     modal.style.display = 'none';
                     timerEl.innerText = '3';
-                    window.open(`https://wa.me/${WA_DESTINATION}?text=${encodeURIComponent(waText)}`, '_blank');
+                    window.open(`https://t.me/${WA_DESTINATION}?text=${encodeURIComponent(waText)}`, '_blank');
                 }
             }, 1000);
         }
@@ -781,10 +794,10 @@
             const ngn = (amount * VAL_EXCHANGE_RATE).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             const ts = new Date().toLocaleString();
 
-            const message = `📤 *goCOINs WALLET TRANSFER REQUEST*\n\n` +
+            const message = `📤 *goCOINs TOKEN TRANSFER REQUEST*\n\n` +
                 `*Action:* Wallet Transfer\n` +
                 `*Recipient:* ${recipient}\n` +
-                `*Transfer Amount:* ${amount.toFixed(2)} GcT\n` +
+                `*Transfer Amount:* ${amount.toFixed(2)} GCT\n` +
                 `*NGN Equiv:* ₦${ngn}\n` +
                 `*Time:* ${ts}\n\n` +
                 `_Please verify and process this transfer accordingly._`;
@@ -793,11 +806,12 @@
                 icon: '📤',
                 title: 'Confirm Transfer',
                 rows: [
-                    { label: 'Action', value: 'Wallet Transfer' },
+                    { label: 'Action', value: 'Token Transfer' },
                     { label: 'Recipient', value: recipient },
-                    { label: 'Transfer Amount', value: `${amount.toFixed(2)} GcT`, highlight: true },
+                    { label: 'Transfer Amount', value: `${amount.toFixed(2)} GCT`, highlight: true },
                     { label: 'NGN Equiv', value: `₦${ngn}` },
-                    { label: 'Via', value: '+2348157505037' },
+                    { label: 'Handler', value: 'DiViA AI Agent' },
+                    { label: '🟡Status', value: 'processing...' },
                 ],
                 message,
                 stateCallback: () => {
@@ -809,16 +823,16 @@
 
         function executeTopup() {
             const pinValue = document.getElementById('topup-pin').value.trim();
-            if (pinValue.length < 5) return alertToast("Structure incorrect. PIN must be 5 digits.");
+            if (pinValue.length < 11) return alertToast("String incorrect. TopUp PIN must be 11 digits.");
 
-            const injectionVolume = 500.00;
+            const injectionVolume = 0.00;
             const newBal = (walletState.balance + injectionVolume).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             const ts = new Date().toLocaleString();
 
             const message = `💳 *goCOINs NET-INJECTION VOUCHER*\n\n` +
                 `*Action:* Wallet Funding\n` +
                 `*Voucher PIN:* ${pinValue}\n` +
-                `*Credit Value:* +${injectionVolume.toFixed(2)} GcT\n` +
+                `*Credit Value:* +${injectionVolume.toFixed(2)} GCT\n` +
                 `*Time:* ${ts}\n\n` +
                 `_Please verify and credit this wallet accordingly._`;
 
@@ -826,11 +840,12 @@
                 icon: '💳',
                 title: 'Confirm Top-Up',
                 rows: [
-                    { label: 'Action', value: 'Voucher Top-Up' },
+                    { label: 'Action', value: 'ToUp Voucher' },
                     { label: 'Voucher PIN', value: pinValue },
-                    { label: 'Credit Amount', value: `+${injectionVolume.toFixed(2)} GcT`, highlight: true },
-                    { label: 'Balance After', value: `${newBal} GcT` },
-                    { label: 'Via', value: '+2348157505037' },
+                    { label: 'Credit Amount', value: `+${injectionVolume.toFixed(2)} GCT`, highlight: true },
+                    { label: 'Balance After', value: `${newBal} +GCT` },
+                    { label: 'Via', value: 'DiViA AI Agent' },
+                    { label: '🟡Status', value: 'pending...' },
                 ],
                 message,
                 stateCallback: () => {
@@ -850,22 +865,23 @@
             const ts = new Date().toLocaleString();
 
             const message = `📥 *goCOINs INBOUND INVOICE GENERATOR*\n\n` +
-                `*Type:* Payment Request\n` +
+                `*Type:* Inbound TopUp\n` +
                 `*Request From:* ${payer}\n` +
-                `*Requested Amount:* ${amount.toFixed(2)} GcT\n` +
+                `*Expecting Amount:* ${amount.toFixed(2)} GCT\n` +
                 `*NGN Equiv:* ₦${ngn}\n` +
                 `*Time:* ${ts}\n\n` +
-                `_Please process this incoming payment request._`;
+                `_Please verify and notify me when this payment comes in._`;
 
             showConfirmModal({
                 icon: '📥',
                 title: 'Confirm Receive Request',
                 rows: [
-                    { label: 'Type', value: 'Payment Request' },
+                    { label: 'Type', value: 'Inbound TopUp' },
                     { label: 'From / Payer', value: payer },
-                    { label: 'Amount Requested', value: `${amount.toFixed(2)} GC`, highlight: true },
+                    { label: 'Inbound Volume', value: `📥${amount.toFixed(2)} GCT`, highlight: true },
                     { label: 'NGN Equiv', value: `₦${ngn}` },
-                    { label: 'Via', value: '+2348157505037' },
+                    { label: 'Via', value: 'HelpPay Merchant' },
+                    { label: '🟡Status', value: 'waiting for sender...' },
                 ],
                 message,
                 stateCallback: () => {
@@ -887,7 +903,7 @@
         function haptic() { if (window.navigator.vibrate) window.navigator.vibrate(20); }
 
         // Close confirm modal on overlay click
-        document.getElementById('confirm-modal').addEventListener('click', function(e) {
+        document.getElementById('confirm-modal').addEventListener('click', function (e) {
             if (e.target === this) closeConfirmModal();
         });
 
