@@ -2090,11 +2090,17 @@
             <div class="r-code">*5050*666#</div>
             <p class="r-desc">High-priority smart shortcode for healthcare.</p>
           </div>-->
-          <div class="reg-card" data-cat="health">
+          <div class="reg-card" data-cat="gov">
             <div class="r-status status-taken">Reserved</div>
             <div class="r-meta">Government Only</div>
             <div class="r-code">*5050*GOV#</div>
             <p class="r-desc">Government institutions only.</p>
+          </div>
+          <div class="reg-card" data-cat="rrstricted">
+            <div class="r-status status-taken">Reserved</div>
+            <div class="r-meta">Admin Owner</div>
+            <div class="r-code">*5050*5050#</div>
+            <p class="r-desc">Owned by Super Admin.</p>
           </div>
         </div>
       </div>
@@ -2120,11 +2126,11 @@
           </ul>
         </div>
 
-        <div class="tier-card" onclick="selectTier(this,'Starter Pack','₦155,999')">
+        <div class="tier-card" onclick="selectTier(this,'Starter Pack','₦710,600')">
           <div class="sel-check">✔</div>
           <div class="tier-head">
             <div class="tier-name">Starter Pack</div>
-            <div class="tier-price">₦155,999<span>/yr</span></div>
+            <div class="tier-price">₦710,600<span>/yr</span></div>
           </div>
           <ul class="feat-list">
             <li class="feat-item">1 Custom Sub-code (*5050*NAME#)</li>
@@ -2764,7 +2770,7 @@
     function showSuccessOverlay() {
       haptic('success');
       speak(
-        'Welcome to the DiViA A.I. Live Agent service! ' +
+        'Welcome to the DiViAᴬᴵ Live Agent service! ' +
         'Your smart address is now active. Redirecting to your dashboard.'
       );
       document.getElementById('successOverlay').classList.add('show');
@@ -2785,7 +2791,7 @@
 
     function openWhatsApp() {
       const code = selectedCode || 'WALLET';
-      const msg = `Hi 5050 Team! 👋\n\nI've completed onboarding for *5050*${code}# (${selectedTierName} Plan).\n\nSmart address PIN: ${walletPin}\n\nPlease confirm my smartID and wallet activation. Thank you!`;
+      const msg = `Hi *5050# Team! 👋\n\nI've completed onboarding for *5050*${code}# (${selectedTierName} Plan).\n\nSmart address PIN: ${walletPin}\n\nPlease confirm my smartID and wallet activation. Thank you!`;
       haptic('medium');
       openWALink(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`);
     }
